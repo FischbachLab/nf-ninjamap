@@ -9,8 +9,7 @@ def helpMessage() {
     Run NinjaMap pipeline against a specific database
 
     Required Arguments:
-      --reads1        R1        Forward reads file path ( paired-end library )
-      --reads2        R2        Reverse reads file path ( paired-end library )
+      --seedfile       file      a file contains sample name, reads1 and reads2
       --db            db_name   NinjaMap database name
       --db_prefix     db_prefix NinjaMap database prefix
       --output_path   path      Output s3 path
@@ -43,13 +42,8 @@ if (params.db == "null") {
 }
 
 Channel
-  .fromPath(params.reads1)
-  .ifEmpty { exit 1, "Cannot find fastq R1 file" }
-
-Channel
-  .fromPath(params.reads2)
-  .ifEmpty { exit 1, "Cannot find fastq R2 file" }
-
+  .fromPath(params.seedfile)
+  .ifEmpty { exit 1, "Cannot find the input seedfile" }
 
 
 /*
@@ -70,46 +64,45 @@ def output_path = "${params.output_path}"
  * the file is split in chunks containing as many sequences as defined by the parameter 'chunksize'.
  * Finally assign the result channel to the variable 'fasta_ch'
  */
-Channel
-    .fromPath(params.reads1)
-    .set { read1_ch }
 
-Channel
-    .fromPath(params.reads2)
-    .set { read2_ch }
+ Channel
+ 	.fromPath(params.seedfile)
+ 	.ifEmpty { exit 1, "Cannot find any seed file matching: ${params.seedfile}." }
+  .splitCsv(header: ['sample', 'reads1', 'reads2'], sep: ',', skip: 1)
+ 	.map{ row -> tuple(row.sample, row.reads1, row.reads2)}
+ 	.set { seedfile_ch }
+
+seedfile_ch.into { seedfile_ch1; seedfile_ch2 }
 
 /*
  * Run NinjaMap preprocessing
  */
 process ninjaMap_preprocessing {
 
-    container "fischbachlab/nf-ninjamap:latest"
+    container params.container
     cpus 16
     memory 64.GB
     publishDir "${output_path}", mode:'copy'
 
     input:
-    file read1 from read1_ch
-    file read2 from read2_ch
+	  tuple val(sample), val(reads1), val(reads2) from seedfile_ch1
 
     output:
-    file 'flag.txt' into out_ch
-    //file 'tmp_*/Sync/bowtie2/*.bam' into bam_ch
-    //file 'tmp_*/Sync/bowtie2/*.bai' into bai_ch
+    file "${sample}" into out_ch
 
     script:
     """
     export sampleRate="${params.sampleRate}"
     export coreNum="${params.coreNum}"
     export memPerCore="${params.memPerCore}"
-    export fastq1="${params.reads1}"
-    export fastq2="${params.reads2}"
+    export fastq1="${reads1}"
+    export fastq2="${reads2}"
     export REFDBNAME="${params.db_prefix}"
     export S3DBPATH="s3://maf-versioned/ninjamap/Index/${params.db}/db/"
-    export S3OUTPUTPATH="${output_path}"
+    export S3OUTPUTPATH="${output_path}/${sample}"
     export STRAIN_MAP_FILENAME="${params.db_prefix}.ninjaIndex.binmap.csv"
     /work/ninjaMap_nf_preprocessing.sh
-    echo "Done" > flag.txt
+    echo "Done" > ${sample}
     """
 }
 
@@ -119,7 +112,7 @@ process ninjaMap_preprocessing {
  */
 process ninjaMap {
 
-    container "fischbachlab/nf-ninjamap:latest"
+    container params.container
     cpus 32
     memory { 256.GB * task.attempt }
     errorStrategy { task.exitStatus in 137..140 ? 'retry' : 'terminate' }
@@ -129,13 +122,14 @@ process ninjaMap {
 
     input:
     file f from out_ch
+
     output:
 
     script:
     """
     export REFDBNAME="${params.db_prefix}"
     export S3DBPATH="s3://maf-versioned/ninjamap/Index/${params.db}/db/"
-    export S3OUTPUTPATH="${output_path}"
+    export S3OUTPUTPATH="${output_path}/${f}"
     export STRAIN_MAP_FILENAME="${params.db_prefix}.ninjaIndex.binmap.csv"
     /work/ninjaMap_nf_core.sh
     """

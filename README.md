@@ -24,7 +24,6 @@ aws batch submit-job \
 
 ```{bash}
 aws batch submit-job \
-    --profile sd \
     --job-name nf-ninjamap \
     --job-queue priority-maf-pipelines \
     --job-definition nextflow-production \
@@ -34,4 +33,18 @@ aws batch submit-job \
 "--db","SCv2_6_20210518", \
 "--db_prefix", "SCv2_6", \
 "--output_path", "s3://genomics-workflow-core/Pipeline_Results/NinjaMap/2stages" "
+```
+
+# Updated version with a seedfile as the input file
+```{bash}
+aws batch submit-job \
+    --job-name nf-ninjamap \
+    --job-queue priority-maf-pipelines \
+    --job-definition nextflow-production \
+    --container-overrides command="s3://nextflow-pipelines/nf-ninjamap, \
+"--seedfile", "s3://genomics-workflow-core/Pipeline_Results/NinjaMap/seedfile2.csv", \
+"--db","SCv2_6_20210518", \
+"--db_prefix", "SCv2_6", \
+"--output_path", "s3://genomics-workflow-core/Pipeline_Results/NinjaMap/2samples", \
+"--sampleRate", "0.1"  "
 ```
