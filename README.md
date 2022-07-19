@@ -46,5 +46,6 @@ aws batch submit-job \
 "--db","SCv2_6_20210518", \
 "--db_prefix", "SCv2_6", \
 "--output_path", "s3://genomics-workflow-core/Pipeline_Results/NinjaMap/2samples", \
-"--sampleRate", "0.1"  "
+"--sampleRate", "0.1", \
+"--coverage", "1"  "
 ```

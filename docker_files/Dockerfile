@@ -1,18 +1,20 @@
 # Setup base image
 FROM continuumio/miniconda3:latest
-# 4.8.2
 
 USER root:root
 ENV PATH "/opt/conda/bin:$PATH"
 
 # Install dependencies
-RUN  apt-get update --allow-releaseinfo-change  && apt-get install -y libtbb2
-RUN  conda install --freeze-installed -y nomkl numpy pandas \
-      && conda install --freeze-installed -c conda-forge -y awscli biopython \
-      && conda install --freeze-installed -c bioconda -y bowtie2 bedtools \
-                              vcftools samtools sambamba pysam \
-                              pysamstats pybedtools bbmap \
-      && conda clean -afy
+RUN apt-get update --allow-releaseinfo-change  && apt-get install -y libtbb2
+
+# Update conda to latest version.
+RUN conda update -n base -c defaults conda
+
+# channel order is important
+RUN conda install --freeze-installed -c bioconda -c conda-forge -y nomkl numpy pandas \
+       awscli biopython \
+       bowtie2 bedtools vcftools samtools==1.11 sambamba pysam pysamstats pybedtools bbmap \
+       && conda clean -afy
 
 # && conda install -c jrmadsen -y timemory \
 # Use connection.py from python version 3.8
