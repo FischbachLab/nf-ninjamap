@@ -1,5 +1,5 @@
 #!/usr/bin/env nextflow
-
+nextflow.enable.dsl=1
 // If the user uses the --help flag, print the help text below
 params.help = false
 
@@ -17,8 +17,8 @@ def helpMessage() {
     Options:
       --sampleRate    num   Sampling rate (0-1)
       --coreNum       num   Number of cores (e.g. 15)
-      --memPerCore    num   Memory per core (e.g., 1G)
-      --coverage      num if output coverage ( 0 or 1)
+      --memPerCore    num   Memory per core (e.g., 2G)
+      --coverage      num if output coverage (0 or 1, default 1)
       -profile        docker  run locally
 
 
@@ -82,18 +82,18 @@ Channel
 
 
 /*
- * Run NinjaMap
+ * Run NinjaMap  16 128 fischbachlab/nf-ninjamap:20220726210531
  */
 process ninjaMap {
-
-    //container "xianmeng/ninjamap:latest"
+    tag "$sample"
     container "fischbachlab/nf-ninjamap:latest"
-    cpus 16
-    memory 128.GB
+    cpus { 16 * task.attempt }
+    memory { 128.GB * task.attempt }
+
+    errorStrategy { task.exitStatus in 137..140 ? 'retry' : 'terminate' }
+    maxRetries 2
 
     publishDir "${output_path}", mode:'copy'
-
-
     input:
     tuple val(sample), val(reads1), val(reads2) from seedfile_ch
     //file read1 from read1_ch

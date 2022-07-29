@@ -104,10 +104,10 @@ p = argparse.ArgumentParser(
     usage=argparse.SUPPRESS,
     description="""Description:
 This script will calculate the abundance of a strain in a defined microbial community.
-Usage: ninjaMap.py -bam name_sorted.bam -bin contig_strain_assignments.tsv -outdir output
+Usage: ninjaMap.py -bam name_sorted.bam -bin contig_strain_assignments.tsv -prefix sample_name -outdir output
 """,
     epilog="""Examples:
-python ninjaMap.py -bin contig_names_bin_map.txt -bam Bacteroides-sp-9-1-42FAA/Bacteroides-sp-9-1-42FAA.processed.sortedByCoord.bam -prefix Bacteroides-sp-9-1-42FAA
+python ninjaMap.py -bin contig_names_bin_map.txt -bam Processed.sortedByCoord.bam -prefix sample_name -outdir output_dir
 """)
 # Required
 p.add_argument('-bam', dest='bamfile', action='store', type=str, required = True,
@@ -128,7 +128,7 @@ p.add_argument('-truth', dest='truth', action='store', default=False,
 p.add_argument('-mbq', dest='min_base_qual', action='store', default=20, type=int,
                 help='minimum read base quality to consider for coverage calculations.')
 p.add_argument('-coverage', dest='coverage', action='store_true', default=False,
-                help='output coverage and depth, by default output abundace only in a defined community')
+                help='output singular and escrow coverage and depth, by default abundace, overall coverage and depth only')
 p.add_argument('-version', action='version', version='NinjaMap version 1.0')
 
 args = vars(p.parse_args())
@@ -806,7 +806,7 @@ for name, read in read_objects.items():
         if strain_name is not None:
             ###############################################################################
             #if len(primary_alignment[read.name]) == 1 :
-            if args['coverage']:
+            if args['coverage']: # and len(perfect_alignment[read.name][strain_name]) == 1 and len(perfect_alignment[mate.name][strain_name]) == 1:
                 for aln in perfect_alignment[read.name][strain_name]:
                         singular_bamfile.write(aln)
                 for aln in perfect_alignment[mate.name][strain_name]:
@@ -827,31 +827,22 @@ for name, read in read_objects.items():
                 str(strain.escrow_bin[mate.unique_name]) + ',' + '1,False,'+
                 str(mate.has_voted)+','+str(mate.in_singular_bin)+','+str(read.mate_has_perfect_match)+'\n')
         else:
-            if args['coverage']:
-                for strains in perfect_alignment[read.name].keys():
-                    for aln in perfect_alignment[read.name][strains]:
-                        escrow_bamfile.write(aln)
+            #if args['coverage']:
+            #    for strains in perfect_alignment[read.name].keys():
+            #        for aln in perfect_alignment[read.name][strains]:
+            #            escrow_bamfile.write(aln)
                 #for aln in perfect_alignment[mate.name]:
                 #   for aln in strains:
                 #       escrow_bamfile.write(aln)
             escrow_read_objects[name] = read
     else:
-        if args['coverage']:
-            for strains in perfect_alignment[read.name].keys():
-                for aln in perfect_alignment[read.name][strains]:
-                    escrow_bamfile.write(aln)
         escrow_read_objects[name] = read
 
     if read.is_fraud():
         singular_fraud_alert = True
         num_singular_fraud_reads += 1
 
-if args['coverage']:
-    singular_bamfile.close()
-    escrow_bamfile.close()
 
-bamfile.close()
-del perfect_alignment
 
 Reads.total_escrow_reads = len(escrow_read_objects.keys())
 logging.info('\t%d reads will be used for singular alignment strain abundance out of %d (%7.3f%%) reads with perfect alignments or %7.3f%% of total aligned.',
@@ -965,13 +956,26 @@ if Reads.total_escrow_reads > 0:
             votes.write(read.name + ',' + strain_name + ',' + str(singular_vote_count) + ',' +
                         str(escrow_vote_count) + ',' + str(len(common_strains_list)) + ',' + str(to_discard) +','+
                         str(read.has_voted)+','+str(read.in_singular_bin)+','+ str(read.mate_has_perfect_match)+'\n')
+
+            if args['coverage'] and not to_discard and read.has_voted and not read.in_singular_bin:
+                #for strains in perfect_alignment[read.name].keys():
+                for aln in perfect_alignment[read.name][strain_name]:
+                    escrow_bamfile.write(aln)
+
         if read.is_fraud() and not to_discard:
             escrow_fraud_alert = True
             num_fraud_reads += 1
 
 votes.close()
-
 del escrow_read_objects
+
+if args['coverage']:
+    singular_bamfile.close()
+    escrow_bamfile.close()
+
+bamfile.close()
+del perfect_alignment
+
 
 logging.info('\tUsed %d reads for escrow distribution, out of %d (%7.3f%%) reads with perfect alignments or %7.3f%% of total.',
             Reads.total_escrow_reads,

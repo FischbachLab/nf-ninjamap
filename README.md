@@ -42,10 +42,10 @@ aws batch submit-job \
     --job-queue priority-maf-pipelines \
     --job-definition nextflow-production \
     --container-overrides command="s3://nextflow-pipelines/nf-ninjamap, \
-"--seedfile", "s3://genomics-workflow-core/Pipeline_Results/NinjaMap/seedfile2.csv", \
+"--seedfile", "s3://genomics-workflow-core/Results/NinjaMap/seedfile2.csv", \
 "--db","SCv2_6_20210518", \
 "--db_prefix", "SCv2_6", \
-"--output_path", "s3://genomics-workflow-core/Pipeline_Results/NinjaMap/2samples", \
+"--output_path", "s3://genomics-workflow-core/Results/Ninjamap/2samples", \
 "--sampleRate", "0.1", \
 "--coverage", "1"  "
 ```

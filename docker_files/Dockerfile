@@ -16,6 +16,7 @@ RUN conda install --freeze-installed -c bioconda -c conda-forge -y nomkl numpy p
        bowtie2 bedtools vcftools samtools==1.11 sambamba pysam pysamstats pybedtools bbmap \
        && conda clean -afy
 
+RUN conda install --freeze-installed -c conda-forge bc
 # && conda install -c jrmadsen -y timemory \
 # Use connection.py from python version 3.8
 COPY connection_py38.py /opt/conda/lib/python3.7/multiprocessing/connection.py
