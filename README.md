@@ -38,7 +38,7 @@ aws batch submit-job \
 
 
 ## Seedfile example
-### Note that the seedfile is A CSV (comma-separated values) file with header
+### Note that the seedfile is a CSV (comma-separated values) file with header
 ### The format of the seedfile is sample_name,short_R1,short_R2
 
 ```{bash}
@@ -47,7 +47,7 @@ Plate1_MITI-001-Mouse_A10_W8_6-1_S394,s3://maf-sequencing/Illumina/221213_A01679
 ```
 
 ## Example 3: aws batch job using a seedfile
-# Updated version with a seedfile as the input file
+### Updated version with a seedfile as the input file
 ```{bash}
 aws batch submit-job \
     --job-name nf-ninjamap \
@@ -58,6 +58,5 @@ aws batch submit-job \
 "--db","HCom2_20221117", \
 "--db_prefix", "HCom2", \
 "--output_path", "s3://genomics-workflow-core/Results/Ninjamap/HCom2/20221018/", \
-"--sampleRate", "0.5", \
-"--coverage", "1"  "
+"--sampleRate", "0.5" "
 ```
