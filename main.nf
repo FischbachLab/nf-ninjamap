@@ -114,7 +114,7 @@ process ninjaMap {
     export S3DBPATH="s3://maf-versioned/ninjamap/Index/${params.db}/db/"
     export S3OUTPUTPATH="${output_path}/${sample}"
     export STRAIN_MAP_FILENAME="${params.db_prefix}.ninjaIndex.binmap.csv"
-    /work/ninjaMap_index_5.sh
+    ninjaMap_index_5.sh
     """
 }
 
