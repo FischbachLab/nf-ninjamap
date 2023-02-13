@@ -59,7 +59,7 @@ aws batch submit-job \
 "--db_prefix", "HCom2", \
 "--output_path", "s3://genomics-workflow-core/Results/Ninjamap/HCom2/20221018", \
 "--sampleRate", "0.5" "
-``
+```
 
 Output files for each sample
 ====================
