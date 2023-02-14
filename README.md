@@ -76,27 +76,30 @@ The running logs of various scripts
 
 ## ninjaMap folder
 
-1. \*.ninjaMap.abundance.csv: this file shows the statistics of the abundance, coverage and depth of each strain in the defined community
+1. **\*.ninjaMap.abundance.csv**: this file shows the statistics of the abundance, coverage and depth of each strain in the defined community
+
 Strain_Name: strain name
 Read_Fraction: abundance in the defined community in percentage
 Percent_Coverage: average coverage per strain in percentage
 Coverage_Depth: average coverage depth
 
-2. \*.ninjaMap.read_stats.csv: this file shows the statistics of input reads
+2. **\*.ninjaMap.read_stats.csv**: this file shows the statistics of input reads
+
 File_Name: sample name
 Reads_Aligned: the number of aligned reads
-Reads_wPerfect_Aln: the number of aligned reads perfectly
+Reads_wPerfect_Aln: the number of perfectly aligned reads
 Reads_wSingular_Votes: the number of reads voted as singular
 Reads_wEscrowed_Votes: the number of reads voted as escrow
-Discarded_Reads_w_Perfect_Aln: the number of discarded perfect reads
+Discarded_Reads_w_Perfect_Aln: the number of discarded perfectly aligned reads
 
-3. \*.ninjaMap.strain_stats.csv: this file shows the various statistics of each strains
+3. **\*.ninjaMap.strain_stats.csv**: this file shows the various statistics of each strains
 
-4. \*.ninjaMap.votes.csv.gz: the statistics of reads voting (singular or escrow)
+4. **\*.ninjaMap.votes.csv.gz**: the statistics of reads voting (singular or escrow)
 
 ## Stats folder
-adapter_trimming_stats_per_ref.txt: this file shows the statistics of adapter trimming
-read_accounting.csv: this file shows the statistics shows the total number of reads, the number of reads after trimming and the number of aligned reads
+**adapter_trimming_stats_per_ref.txt**: this file shows the statistics of adapter trimming
+
+**read_accounting.csv**: this file shows the statistics shows the total number of reads, the number of reads after trimming and the number of aligned reads
 
 
 Aggregated output files for each study
@@ -104,9 +107,9 @@ Aggregated output files for each study
 
 The aggregated output files are organized into 6 files.
 
-1. \*.covDepth.csv: this file shows the average coverage depth per strain by samples
-2. \*.host_contaminants.csv: this file shows the detected host contaminants (Human or Mouse) by samples if the unaligned reads is over 5%
-3. \*.long.csv: this is the long format of three files (\*.readFraction.csv, \*.covDepth.csv and\*.percCoverage.csv)
-4. \*.percCoverage.csv: this file shows the average coverage per strain in percentage by samples
-5. \*.reads_stats.csv: this file shows the reads the statistics in read number by samples
-6. \*.readFraction.csv: this file shows the abundance in the defined community in percentage by samples
+1. **\*.covDepth.csv**: this file shows the average coverage depth per strain by samples
+2. **\*.host_contaminants.csv**: this file shows the detected host contaminants (Human or Mouse) by samples if the unalignment rate is over 5%
+3. **\*.long.csv**: this is the long format of three files (\*.readFraction.csv, \*.covDepth.csv and \*.percCoverage.csv)
+4. **\*.percCoverage.csv**: this file shows the average coverage per strain in percentage by samples
+5. **\*.reads_stats.csv**: this file shows the reads statistics in read numbers by samples
+6. **\*.readFraction.csv**: this file shows the abundance in the defined community in percentage by samples
