@@ -78,28 +78,28 @@ The running logs of various scripts
 
 1. **\*.ninjaMap.abundance.csv**: this file shows the statistics of the abundance, coverage and depth of each strain in the defined community
 
-Strain_Name: strain name<br>
-Read_Fraction: the abundance in the defined community in percentage<br>
-Percent_Coverage: the average coverage per strain in percentage<br>
-Coverage_Depth: the average coverage depth<br>
++ Strain_Name: strain name<br>
++ Read_Fraction: the abundance in the defined community in percentage<br>
++ Percent_Coverage: the average coverage per strain in percentage<br>
++ Coverage_Depth: the average coverage depth<br>
 
 2. **\*.ninjaMap.read_stats.csv**: this file shows the statistics of input reads
 
-File_Name: sample name <br>
-Reads_Aligned: the number of aligned reads<br>
-Reads_wPerfect_Aln: the number of perfectly aligned reads<br>
-Reads_wSingular_Votes: the number of reads voted as singular<br>
-Reads_wEscrowed_Votes: the number of reads voted as escrow<br>
-Discarded_Reads_w_Perfect_Aln: the number of discarded perfectly aligned reads
++ File_Name: sample name <br>
++ Reads_Aligned: the number of aligned reads<br>
++ Reads_wPerfect_Aln: the number of perfectly aligned reads<br>
++ Reads_wSingular_Votes: the number of reads voted as singular<br>
++ Reads_wEscrowed_Votes: the number of reads voted as escrow<br>
++ Discarded_Reads_w_Perfect_Aln: the number of discarded perfectly aligned reads
 
 3. **\*.ninjaMap.strain_stats.csv**: this file shows the various statistics of each strains
 
 4. **\*.ninjaMap.votes.csv.gz**: the statistics of reads voting (singular or escrow)
 
 ## Stats folder
-**adapter_trimming_stats_per_ref.txt**: this file shows the statistics of adapter trimming
+1. **adapter_trimming_stats_per_ref.txt**: this file shows the statistics of adapter trimming
 
-**read_accounting.csv**: this file shows the statistics shows the total number of reads, the number of reads after trimming and the number of aligned reads
+2. **read_accounting.csv**: this file shows the statistics shows the total number of reads, the number of reads after trimming and the number of aligned reads
 
 
 Aggregated output files for each study
