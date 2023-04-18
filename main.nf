@@ -12,13 +12,14 @@ def helpMessage() {
       --seedfile      file      a file contains sample name, reads1 and reads2
       --db            db_name   NinjaMap database name
       --db_prefix     db_prefix NinjaMap database prefix
+      --db_path       db_path   NinjaMap database path
       --output_path   path      Output s3 path
 
     Options:
       --sampleRate    num   Sampling rate (0-1)
       --coreNum       num   Number of cores (e.g. 15)
       --memPerCore    num   Memory per core (e.g., 2G)
-      --coverage      num if output coverage (0 or 1, default 1)
+      --coverage      num   Outputting singular & escrow coverage and depth (0 or 1, default 0)
       -profile        docker  run locally
 
 
@@ -111,7 +112,7 @@ process ninjaMap {
     export fastq2="${reads2}"
     export coverage="${params.coverage}"
     export REFDBNAME="${params.db_prefix}"
-    export S3DBPATH="s3://maf-versioned/ninjamap/Index/${params.db}/db/"
+    export S3DBPATH="${params.db_path}/${params.db}/db/"
     export S3OUTPUTPATH="${output_path}/${sample}"
     export STRAIN_MAP_FILENAME="${params.db_prefix}.ninjaIndex.binmap.csv"
     ninjaMap_index_5.sh
