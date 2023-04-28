@@ -48,9 +48,14 @@ sampleName,R1,R2
 Plate1_MITI-001-Mouse_A10_W8_6-1_S394,s3://maf-sequencing/Illumina/221213_A01679_0069_BHLLVHDSX5/Allison_Weakley/MITI-001-BackfillAnalysis/Plate1_MITI-001-Mouse_A10_W8_6-1_S394_R1.fastq.gz,s3://maf-sequencing/Illumina/221213_A01679_0069_BHLLVHDSX5/Allison_Weakley/MITI-001-BackfillAnalysis/Plate1_MITI-001-Mouse_A10_W8_6-1_S394_R2.fastq.gz
 ```
 
-## Example 3: aws batch job using a seedfile
-### Updated version with a seedfile as the input file
-### Example full db path: s3://maf-versioned/ninjamap/Index/HCom2_20221117/db/
+## Example 3: aws batch job against the latest HCom2 database using a seedfile
+### Example s3 db path: s3://maf-versioned/ninjamap/Index/
+### External user can supply the following URL if running the latest hCom2 index
+
+```{bash}
+ https://zenodo.org/record/7872423/files/hCom2_20221117.ninjaIndex.tar.gz
+```{bash}
+
 ```{bash}
 aws batch submit-job \
     --job-name nf-ninjamap \
@@ -60,10 +65,12 @@ aws batch submit-job \
 "--seedfile", "s3://genomics-workflow-core/Results/Ninjamap/20221018/seedfile2.csv", \
 "--db","HCom2_20221117", \
 "--db_prefix", "HCom2", \
-"--db_path", "s3://maf-versioned/ninjamap/Index", \
+"--db_path", "https://zenodo.org/record/7872423/files/hCom2_20221117.ninjaIndex.tar.gz", \
 "--output_path", "s3://genomics-workflow-core/Results/Ninjamap/HCom2/20221018", \
 "--sampleRate", "0.5" "
 ```
+
+
 
 Output files for each sample
 ====================

@@ -91,8 +91,21 @@ scriptFolder="/work/scripts"
 BOWTIE2_DB=${LOCAL_DB_PATH}/bowtie2_index/${REFDBNAME}
 # REF_FASTA=${LOCAL_DB_PATH}/${REFDBNAME}.fna
 
-# Copy genome reference over
-aws s3 sync --quiet ${S3DBPATH}/ ${LOCAL_DB_PATH}/
+# Copy genome reference over  ${params.db_path}/${params.db}/db/
+# Check the reference location
+if [[ $S3DBPATH = s3* ]]
+then
+	echo "Sync index files from aws s3"
+  aws s3 sync --quiet ${S3DBPATH}/ ${LOCAL_DB_PATH}/
+else
+  echo "Copying index files from the external URL"
+  #S3DBPATH=${S3DBPATH%%/HCom2*}
+  S3DBPATH="https://zenodo.org/record/7872423/files/hCom2_20221117.ninjaIndex.tar.gz"
+  wget $S3DBPATH -P ${LOCAL_DB_PATH}/
+  tar -xzvf ${LOCAL_DB_PATH}/hCom2_20221117.ninjaIndex.tar.gz  -C ${LOCAL_DB_PATH}/
+  mv ${LOCAL_DB_PATH}/HCom2_20221117/db/* ${LOCAL_DB_PATH}/
+fi
+
 referenceNameFile=${LOCAL_DB_PATH}/${STRAIN_MAP_FILENAME}
 
 # Constant definitions for bbduk
