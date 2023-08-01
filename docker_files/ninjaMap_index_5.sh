@@ -152,6 +152,7 @@ END
 
 # Try to use all available cores to speed up alignments
 mycpu=`grep -c ^processor /proc/cpuinfo`
+#mycpu=$(bc <<< "(`grep -c ^processor /proc/cpuinfo` - 2)" )
 # bowtie2 alignment returning multiple alignments and using longer max insert size limites
 # output samtools bam file with only properly aligned paired reads.
 bowtie2 \
@@ -184,7 +185,7 @@ bowtie2 \
 # Fix Mates
 samtools sort \
     -n \
-    -@ ${mycpu} \
+    -@ ${coreN} \
     -m ${memPerCore} \
     -T ${OUTPUTDIR} \
     -O BAM \
@@ -194,13 +195,13 @@ samtools fixmate \
     -cm \
     - - | \
 samtools sort \
-    -@ ${mycpu} \
+    -@ ${coreN} \
     -m ${memPerCore} \
     -T ${OUTPUTDIR} \
     -o ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam
 
 # samtools sort -@ ${coreN} -o ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam ${TMP_OUTPUTS}/${SAMPLE_NAME}.bam
-samtools index -@ ${mycpu} ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam
+samtools index -@ ${coreN} ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam
 
 # rmove unsorted bam file to save space
 rm ${TMP_OUTPUTS}/${SAMPLE_NAME}.bam

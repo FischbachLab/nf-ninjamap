@@ -9,7 +9,8 @@ def helpMessage() {
     Run NinjaMap pipeline against a specific database
 
     Required Arguments:
-      --seedfile      file      a file contains sample name, reads1 and reads2
+      --reads1        R1        Forward reads file path ( paired-end library )
+      --reads2        R2        Reverse reads file path ( paired-end library )
       --db            db_name   NinjaMap database name
       --db_prefix     db_prefix NinjaMap database prefix
       --output_path   path      Output s3 path
@@ -32,19 +33,15 @@ if (params.help){
     exit 0
 }
 
-if (params.output_path == "null") {
-	exit 1, "Missing the output path"
+// Set default options
+if (params.db_prefix == "null") {
+	exit 1, "Missing a database prefix"
 }
 
 if (params.db == "null") {
 	exit 1, "Missing the a database name"
 }
 
-if (params.db_prefix == "null") {
-	exit 1, "Missing the a database prefix"
-}
-
-/*
 Channel
   .fromPath(params.reads1)
   .ifEmpty { exit 1, "Cannot find fastq R1 file" }
@@ -54,15 +51,25 @@ Channel
   .ifEmpty { exit 1, "Cannot find fastq R2 file" }
 
 
+
+/*
  * Defines the pipeline inputs parameters (giving a default value for each for them)
  * Each of the following parameters can be specified as command line options
  */
 
+//core = params.
+//mem =
+//srate=
+
 def output_path = "${params.output_path}"
-//def output_path=s3://genomics-workflow-core/Pipeline_Results/NinjaMap/${params.output_prefix}"
+//def output_path = "s3://genomics-workflow-core/Pipeline_Results/NinjaMap/${params.output_prefix}"
 
 //println output_path
 /*
+ * Given the query parameter creates a channel emitting the query fasta file(s),
+ * the file is split in chunks containing as many sequences as defined by the parameter 'chunksize'.
+ * Finally assign the result channel to the variable 'fasta_ch'
+ */
 Channel
     .fromPath(params.reads1)
     .set { read1_ch }
@@ -70,14 +77,41 @@ Channel
 Channel
     .fromPath(params.reads2)
     .set { read2_ch }
-*/
 
-Channel
- .fromPath(params.seedfile)
- .ifEmpty { exit 1, "Cannot find any seed file matching: ${params.seedfile}." }
- .splitCsv(header: ['sample', 'reads1', 'reads2'], sep: ',', skip: 1)
- .map{ row -> tuple(row.sample, row.reads1, row.reads2)}
- .set { seedfile_ch }
+/*
+ * Run NinjaMap preprocessing
+ */
+process ninjaMap_preprocessing {
+
+    container "fischbachlab/nf-ninjamap:latest"
+    cpus 16
+    memory 64.GB
+    publishDir "${output_path}", mode:'copy'
+
+    input:
+    file read1 from read1_ch
+    file read2 from read2_ch
+
+    output:
+    file 'flag.txt' into out_ch
+    //file 'tmp_*/Sync/bowtie2/*.bam' into bam_ch
+    //file 'tmp_*/Sync/bowtie2/*.bai' into bai_ch
+
+    script:
+    """
+    export sampleRate="${params.sampleRate}"
+    export coreNum="${params.coreNum}"
+    export memPerCore="${params.memPerCore}"
+    export fastq1="${params.reads1}"
+    export fastq2="${params.reads2}"
+    export REFDBNAME="${params.db_prefix}"
+    export S3DBPATH="s3://maf-versioned/ninjamap/Index/${params.db}/db/"
+    export S3OUTPUTPATH="${output_path}"
+    export STRAIN_MAP_FILENAME="${params.db_prefix}.ninjaIndex.binmap.csv"
+    ninjaMap_nf_preprocessing.sh
+    echo "Done" > flag.txt
+    """
+}
 
 
 /*
@@ -85,34 +119,24 @@ Channel
  */
 process ninjaMap {
 
-    tag "$sample"
-    //container "xianmeng/ninjamap:latest"
     container "fischbachlab/nf-ninjamap:latest"
-    cpus 16
-    memory 128.GB
+    cpus 32
+    memory { 256.GB * task.attempt }
+    errorStrategy { task.exitStatus in 137..140 ? 'retry' : 'terminate' }
+    maxRetries 2
 
-    publishDir "${output_path}", mode:'copy'
+    //publishDir "${output_path}", mode:'copy'
 
     input:
-    input:
-    tuple val(sample), val(reads1), val(reads2) from seedfile_ch
-    //file read1 from read1_ch
-    //file read2 from read2_ch
-
+    file f from out_ch
     output:
-    //path "*"
 
     script:
     """
-    export sampleRate="${params.sampleRate}"
-    export coreNum="${params.coreNum}"
-    export memPerCore="${params.memPerCore}"
-    export fastq1="${reads1}"
-    export fastq2="${reads2}"
     export REFDBNAME="${params.db_prefix}"
     export S3DBPATH="s3://maf-versioned/ninjamap/Index/${params.db}/db/"
-    export S3OUTPUTPATH="${output_path}/${sample}"
+    export S3OUTPUTPATH="${output_path}"
     export STRAIN_MAP_FILENAME="${params.db_prefix}.ninjaIndex.binmap.csv"
-    /work/ninjaMap_index_4.sh
+    ninjaMap_nf_core.sh
     """
 }
