@@ -5,7 +5,14 @@ The simple scripts shows how to run ninjamap jobs under the Nextflow framework.
 
 ## Command line example for a single sample in local mode
 ```{bash}
-nextflow run main-local.nf --reads1 's3://nextflow-pipelines/nf-ninjamap/data/read1.fastq.gz' --reads2 's3://nextflow-pipelines/nf-ninjamap/data/read2.fastq.gz' --db HCom2_20221117 --db_prefix HCom2 --output_path 's3://genomics-workflow-core/Results/Ninjamap/local' -profile docker
+nextflow run \
+main-local.nf \
+--reads1 's3://nextflow-pipelines/nf-ninjamap/data/read1.fastq.gz' \
+--reads2 's3://nextflow-pipelines/nf-ninjamap/data/read2.fastq.gz' \
+--db HCom2_20221117 \
+--db_prefix HCom2 \
+--output_path 's3://genomics-workflow-core/Results/Ninjamap/local' \
+-profile docker
 ```
 
 ## Test dataset
@@ -15,9 +22,22 @@ data/read1.fastq.gz
 data/read2.fastq.gz
 ```
 
-## An example of ninjaMap Index (hCom2) is available at
+## An example of ninjaMap Index (HCom2) is available at
 ```{bash}
 https://zenodo.org/record/7872423/files/hCom2_20221117.ninjaIndex.tar.gz
+```
+
+## Run a ninjaMap docker container with a sorted BAM file (a sample aligned to the concatenated reference) and an HCom2 binmap file
+```{bash}
+docker container run \
+    -v /host/path/to/indata/:/input_data/ \
+    -v /host/path/to/outdata/:/output_data/ \
+    fischbachlab/nf-ninjamap \
+    python /work/scripts/ninjaMap_parallel_5.py \
+    -bin /input_data/db/HCom2.ninjaIndex.binmap.csv \
+    -bam /input_data/bam/sample.sortedByCoord.bam \
+    -outdir /output_data/summary \
+    -prefix HCom2
 ```
 
 ## Seedfile example
