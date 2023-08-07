@@ -77,14 +77,15 @@ aws batch submit-job \
 "--output_path", "s3://genomics-workflow-core/Results/Ninjamap/" "
 ```
 
-## Example 3: aws batch job against the latest HCom2 database using a seedfile
-### Example s3 db path: s3://maf-versioned/ninjamap/Index/
-### External user can supply the following URL if running the latest hCom2 index
+
+### Example db path: (s3://maf-versioned/ninjamap/Index/)
+### Community users can supply the following URL if running the latest hCom2 index
 
 ```{bash}
  https://zenodo.org/record/7872423/files/hCom2_20221117.ninjaIndex.tar.gz
-```{bash}
+```
 
+## Example 3: aws batch job against the latest HCom2 database using a seedfile
 ```{bash}
 aws batch submit-job \
     --job-name nf-ninjamap \
@@ -142,7 +143,7 @@ Anaerotruncus-colihominis-DSM-17241-MAF-2          0.0                 0        
 Bacteroides-caccae-ATCC-43185-MAF-2                6.521739130434782   0.0387897         0.0004
 Bacteroides-cellulosilyticus-DSM-14838-MAF-2       22.463768115942027  0.0529593         0.000599636
 Bacteroides-coprocola-DSM-17136-MAF-2              2.898550724637681   0.0109683         9.75984e-05
-
+................................
 ```
 
 
