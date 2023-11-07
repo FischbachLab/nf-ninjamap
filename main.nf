@@ -1,5 +1,5 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=1
+nextflow.enable.dsl=2
 // If the user uses the --help flag, print the help text below
 params.help = false
 
@@ -47,40 +47,12 @@ if (params.db_prefix == "null") {
 }
 
 /*
-Channel
-  .fromPath(params.reads1)
-  .ifEmpty { exit 1, "Cannot find fastq R1 file" }
-
-Channel
-  .fromPath(params.reads2)
-  .ifEmpty { exit 1, "Cannot find fastq R2 file" }
-
-
  * Defines the pipeline inputs parameters (giving a default value for each for them)
  * Each of the following parameters can be specified as command line options
  */
 
 def output_path = "${params.output_path}"
 //def output_path=s3://genomics-workflow-core/Pipeline_Results/NinjaMap/${params.output_prefix}"
-
-//println output_path
-/*
-Channel
-    .fromPath(params.reads1)
-    .set { read1_ch }
-
-Channel
-    .fromPath(params.reads2)
-    .set { read2_ch }
-*/
-
-Channel
- .fromPath(params.seedfile)
- .ifEmpty { exit 1, "Cannot find any seed file matching: ${params.seedfile}." }
- .splitCsv(header: ['sample', 'reads1', 'reads2'], sep: ',', skip: 1)
- .map{ row -> tuple(row.sample, row.reads1, row.reads2)}
- .set { seedfile_ch }
-
 
 /*
  * Run NinjaMap  16 128 fischbachlab/nf-ninjamap:20220726210531
@@ -96,12 +68,10 @@ process ninjaMap {
 
     publishDir "${output_path}", mode:'copy'
     input:
-    tuple val(sample), val(reads1), val(reads2) from seedfile_ch
-    //file read1 from read1_ch
-    //file read2 from read2_ch
+    tuple val(sample), val(reads1), val(reads2)
 
     output:
-    //path "*"
+    //path "tmp_*/Sync/bowtie2/*.sortedByCoord.bam"
 
     script:
     """
@@ -119,33 +89,16 @@ process ninjaMap {
     """
 }
 
-/*
-process cal_depth {
 
-  container "fischbachlab/nf-ninjamap:latest"
-  cpus 4
-  memory 8.GB
+Channel
+ .fromPath(params.seedfile)
+ .ifEmpty { exit 1, "Cannot find any seed file matching: ${params.seedfile}." }
+ .splitCsv(header: ['sample', 'reads1', 'reads2'], sep: ',', skip: 1)
+ .map{ row -> tuple(row.sample, row.reads1, row.reads2)}
+ .set { seedfile_ch }
 
-  input:
-  file inbam from pe_bam_ch
-  file abund from ninja_map_ch
+workflow {
 
-  output:
-
-
-  script:
-  """
-  s=${inbam%.bam}
-  pileup.sh in=${inbam} out=${s}_coverage.txt overwrite=t 2>${s}_stats.txt
-  echo -e "stain_name\tsingular_depth\tsingular_coverage" > ${s}_summary_depth.tsv
-  for i in $(cut -f1 ${s}_coverage.txt | tail -n+2  | sed  's/_Node.*/
-  /*      /' |  uniq )
-  do
-   grep $i ${s}_coverage.txt | awk '{t+=$2*$3; c+=$6; l+=$3}END{print $1"\t"t/l"\t"c/l}' >> ${s}_summary_depth.tsv
-  done
-  cut -f2,3 ${s}_summary_depth.tsv | paste ${abund} -  | awk '{print $1","$2","$3}' > tmp.ninjaMap.abundance.csv
-
-  """
+  seedfile_ch |  ninjaMap
 
 }
-*/
