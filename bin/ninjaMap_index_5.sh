@@ -354,7 +354,8 @@ then
       done
       cut -f2,3 ${NINJA_OUTPUT}/${s}_summary_depth.tsv | paste ${NINJA_OUTPUT}/tmp.ninjaMap.abundance.csv -  | awk '{print $1","$2","$3}' > ${NINJA_OUTPUT}/tmp2.ninjaMap.abundance.csv
       mv ${NINJA_OUTPUT}/tmp2.ninjaMap.abundance.csv ${NINJA_OUTPUT}/${SAMPLE_NAME}.ninjaMap.abundance.csv
-      rm ${NINJA_OUTPUT}/*_summary_depth.tsv ${NINJA_OUTPUT}/tmp*.ninjaMap.abundance.csv ${NINJA_OUTPUT}/*_summary_coverage.tsv
+      rm ${NINJA_OUTPUT}/*_summary_depth.tsv ${NINJA_OUTPUT}/tmp*.ninjaMap.abundance.csv
+      #${NINJA_OUTPUT}/*_summary_coverage.tsv
       rm ${NINJA_OUTPUT}/${SAMPLE_NAME}.singular.bam  ${NINJA_OUTPUT}/${SAMPLE_NAME}.escrow.bam
       rm ${NINJA_OUTPUT}/*.bed
 fi
