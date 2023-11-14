@@ -269,8 +269,8 @@ if [ $all_mapped_reads -gt 1 ]; then
 python ${scriptFolder}/bamParser.py -bam ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam -id 100 -aln_len 100 -out ${GENOME_COV_OUTPUT}/${SAMPLE_NAME}.filtered.bam
 pileup.sh in=${GENOME_COV_OUTPUT}/${SAMPLE_NAME}.filtered.bam out=${GENOME_COV_OUTPUT}/${SAMPLE_NAME}_coverage.txt overwrite=t delcoverage=f 2>${GENOME_COV_OUTPUT}/${SAMPLE_NAME}_stats.txt
 
-samtools faidx ${LOCAL_DB_PATH}/${REFDBNAME}.fna && cut -f1,2 ${LOCAL_DB_PATH}/${REFDBNAME}.fna.fai > ${GENOME_COV_OUTPUT}/HCom2.genome
-cut -f1  ${GENOME_COV_OUTPUT}/HCom2.genome | sed  's/_Node.*//' | sort | uniq  > ${GENOME_COV_OUTPUT}/DBGenomeNameList.txt
+samtools faidx ${LOCAL_DB_PATH}/${REFDBNAME}.fna && cut -f1,2 ${LOCAL_DB_PATH}/${REFDBNAME}.fna.fai > ${GENOME_COV_OUTPUT}/Ninja.genomes
+cut -f1  ${GENOME_COV_OUTPUT}/Ninja.genomes | sed  's/_Node.*//' | sort | uniq  > ${GENOME_COV_OUTPUT}/DBGenomeNameList.txt
 echo -e "Stain_Name\tPercent_Coverage\tCoverage_Depth" > ${NINJA_OUTPUT}/${SAMPLE_NAME}_summary_coverage.tsv
 for i in $(cat ${GENOME_COV_OUTPUT}/DBGenomeNameList.txt)
 do
@@ -293,7 +293,7 @@ then
     samtools sort -@ ${coreN} ${NINJA_OUTPUT}/${SAMPLE_NAME}.singular.bam > ${NINJA_OUTPUT}/${SAMPLE_NAME}.singular_sorted.bam
     bedtools bamtobed -i ${NINJA_OUTPUT}/${SAMPLE_NAME}.singular_sorted.bam > ${NINJA_OUTPUT}/${s}.bed
     echo -e "Stain_Name\tSingular_Coverage\tSingular_Depth" > ${NINJA_OUTPUT}/${s}_summary_depth.tsv
-    #for i in $(cut -f1 HCom2.genome | sed  's/_Node.*//' |  uniq )  | cut -f1,2,3 -
+    #for i in $(cut -f1 Ninja.genomes | sed  's/_Node.*//' |  uniq )  | cut -f1,2,3 -
     for i in $(cat ${GENOME_COV_OUTPUT}/DBGenomeNameList.txt)
     do
         if [ $(grep -c "^$i" ${NINJA_OUTPUT}/${s}.bed) -eq 0 ];
@@ -302,7 +302,7 @@ then
         else
           grep "^$i" ${NINJA_OUTPUT}/${s}.bed | cut -f1,2,3  > ${GENOME_COV_OUTPUT}/tmp.bed
         fi
-        grep "^$i"  ${GENOME_COV_OUTPUT}/HCom2.genome > ${GENOME_COV_OUTPUT}/tmp.genome
+        grep "^$i"  ${GENOME_COV_OUTPUT}/Ninja.genomes > ${GENOME_COV_OUTPUT}/tmp.genome
         bedtools genomecov -i ${GENOME_COV_OUTPUT}/tmp.bed -g ${GENOME_COV_OUTPUT}/tmp.genome -bga > ${GENOME_COV_OUTPUT}/tmps.bedg
         #compute coverage
         zero=$(awk '$4==0 {bpCountZero+=($3-$2)} END {print bpCountZero}' ${GENOME_COV_OUTPUT}/tmps.bedg)
@@ -334,7 +334,7 @@ then
          else
            grep "^$i" ${NINJA_OUTPUT}/${s}.bed | cut -f1,2,3  > ${GENOME_COV_OUTPUT}/tmp.bed
          fi
-         grep "^$i"  ${GENOME_COV_OUTPUT}/HCom2.genome > ${GENOME_COV_OUTPUT}/tmp.genome
+         grep "^$i"  ${GENOME_COV_OUTPUT}/Ninja.genomess > ${GENOME_COV_OUTPUT}/tmp.genome
          bedtools genomecov -i ${GENOME_COV_OUTPUT}/tmp.bed -g ${GENOME_COV_OUTPUT}/tmp.genome -bga > ${GENOME_COV_OUTPUT}/tmps.bedg
          #compute coverage
          zero=$(awk '$4==0 {bpCountZero+=($3-$2)} END {print bpCountZero}' ${GENOME_COV_OUTPUT}/tmps.bedg)
@@ -355,7 +355,6 @@ then
       cut -f2,3 ${NINJA_OUTPUT}/${s}_summary_depth.tsv | paste ${NINJA_OUTPUT}/tmp.ninjaMap.abundance.csv -  | awk '{print $1","$2","$3}' > ${NINJA_OUTPUT}/tmp2.ninjaMap.abundance.csv
       mv ${NINJA_OUTPUT}/tmp2.ninjaMap.abundance.csv ${NINJA_OUTPUT}/${SAMPLE_NAME}.ninjaMap.abundance.csv
       rm ${NINJA_OUTPUT}/*_summary_depth.tsv ${NINJA_OUTPUT}/tmp*.ninjaMap.abundance.csv
-      #${NINJA_OUTPUT}/*_summary_coverage.tsv
       rm ${NINJA_OUTPUT}/${SAMPLE_NAME}.singular.bam  ${NINJA_OUTPUT}/${SAMPLE_NAME}.escrow.bam
       rm ${NINJA_OUTPUT}/*.bed
 fi
