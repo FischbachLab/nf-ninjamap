@@ -292,7 +292,7 @@ then
     s="singular"
     samtools sort -@ ${coreN} ${NINJA_OUTPUT}/${SAMPLE_NAME}.singular.bam > ${NINJA_OUTPUT}/${SAMPLE_NAME}.singular_sorted.bam
     bedtools bamtobed -i ${NINJA_OUTPUT}/${SAMPLE_NAME}.singular_sorted.bam > ${NINJA_OUTPUT}/${s}.bed
-    echo -e "Stain_Name\tSingular_Coverage\tSingular_Depth" > ${NINJA_OUTPUT}/${s}_summary_depth.tsv
+    echo -e "Strain_Name\tSingular_Coverage\tSingular_Depth\tSingular_Bases" > ${NINJA_OUTPUT}/${s}_summary_depth.tsv
     #for i in $(cut -f1 Ninja.genomes | sed  's/_Node.*//' |  uniq )  | cut -f1,2,3 -
     for i in $(cat ${GENOME_COV_OUTPUT}/DBGenomeNameList.txt)
     do
@@ -300,7 +300,7 @@ then
         then
           > ${GENOME_COV_OUTPUT}/tmp.bed
         else
-          grep "^$i" ${NINJA_OUTPUT}/${s}.bed | cut -f1,2,3  > ${GENOME_COV_OUTPUT}/tmp.bed
+          grep "^$i" ${NINJA_OUTPUT}/${s}.bed | sort | uniq | cut -f1,2,3  > ${GENOME_COV_OUTPUT}/tmp.bed
         fi
         grep "^$i"  ${GENOME_COV_OUTPUT}/Ninja.genomes > ${GENOME_COV_OUTPUT}/tmp.genome
         bedtools genomecov -i ${GENOME_COV_OUTPUT}/tmp.bed -g ${GENOME_COV_OUTPUT}/tmp.genome -bga > ${GENOME_COV_OUTPUT}/tmps.bedg
@@ -318,23 +318,23 @@ then
         else
            cov_depth=$(bc <<< "scale=4; ($totalbases / $nonzero)")
         fi
-        printf "${i}\t${cov_pct}\t${cov_depth}\n" >> ${NINJA_OUTPUT}/${s}_summary_depth.tsv
+        printf "${i}\t${cov_pct}\t${cov_depth}\t${nonzero}\n" >> ${NINJA_OUTPUT}/${s}_summary_depth.tsv
      done
-     cut -f2,3 ${NINJA_OUTPUT}/${s}_summary_depth.tsv | paste ${NINJA_OUTPUT}/${SAMPLE_NAME}.ninjaMap.abundance.csv -  | awk '{print $1","$2","$3}' > ${NINJA_OUTPUT}/tmp.ninjaMap.abundance.csv
+     cut -f2,3,4 ${NINJA_OUTPUT}/${s}_summary_depth.tsv | paste ${NINJA_OUTPUT}/${SAMPLE_NAME}.ninjaMap.abundance.csv -  | awk '{print $1","$2","$3","$4}' > ${NINJA_OUTPUT}/tmp.ninjaMap.abundance.csv
 
      s="escrow"
      samtools sort -@ ${coreN} ${NINJA_OUTPUT}/${SAMPLE_NAME}.escrow.bam > ${NINJA_OUTPUT}/${SAMPLE_NAME}.escrow_sorted.bam
      bedtools bamtobed -i ${NINJA_OUTPUT}/${SAMPLE_NAME}.escrow_sorted.bam  > ${NINJA_OUTPUT}/${s}.bed
-     echo -e "Stain_Name\tEscrow_Coverage\tEscorw_Depth" > ${NINJA_OUTPUT}/${s}_summary_depth.tsv
+     echo -e "Strain_Name\tEscrow_Coverage\tEscorw_Depth\tEscorw_Bases" > ${NINJA_OUTPUT}/${s}_summary_depth.tsv
      for i in $(cat ${GENOME_COV_OUTPUT}/DBGenomeNameList.txt)
      do
          if [ $(grep -c "^$i" ${NINJA_OUTPUT}/${s}.bed) -eq 0 ];
          then
             > ${GENOME_COV_OUTPUT}/tmp.bed
          else
-           grep "^$i" ${NINJA_OUTPUT}/${s}.bed | cut -f1,2,3  > ${GENOME_COV_OUTPUT}/tmp.bed
+           grep "^$i" ${NINJA_OUTPUT}/${s}.bed | sort | uniq | cut -f1,2,3  > ${GENOME_COV_OUTPUT}/tmp.bed
          fi
-         grep "^$i"  ${GENOME_COV_OUTPUT}/Ninja.genomess > ${GENOME_COV_OUTPUT}/tmp.genome
+         grep "^$i"  ${GENOME_COV_OUTPUT}/Ninja.genomes > ${GENOME_COV_OUTPUT}/tmp.genome
          bedtools genomecov -i ${GENOME_COV_OUTPUT}/tmp.bed -g ${GENOME_COV_OUTPUT}/tmp.genome -bga > ${GENOME_COV_OUTPUT}/tmps.bedg
          #compute coverage
          zero=$(awk '$4==0 {bpCountZero+=($3-$2)} END {print bpCountZero}' ${GENOME_COV_OUTPUT}/tmps.bedg)
@@ -350,9 +350,9 @@ then
          else
             cov_depth=$(bc <<< "scale=4; ($totalbases / $nonzero)")
          fi
-         printf "${i}\t${cov_pct}\t${cov_depth}\n" >> ${NINJA_OUTPUT}/${s}_summary_depth.tsv
+         printf "${i}\t${cov_pct}\t${cov_depth}\t${nonzero}\n" >> ${NINJA_OUTPUT}/${s}_summary_depth.tsv
       done
-      cut -f2,3 ${NINJA_OUTPUT}/${s}_summary_depth.tsv | paste ${NINJA_OUTPUT}/tmp.ninjaMap.abundance.csv -  | awk '{print $1","$2","$3}' > ${NINJA_OUTPUT}/tmp2.ninjaMap.abundance.csv
+      cut -f2,3,4 ${NINJA_OUTPUT}/${s}_summary_depth.tsv | paste ${NINJA_OUTPUT}/tmp.ninjaMap.abundance.csv -  | awk '{print $1","$2","$3","$4}' > ${NINJA_OUTPUT}/tmp2.ninjaMap.abundance.csv
       mv ${NINJA_OUTPUT}/tmp2.ninjaMap.abundance.csv ${NINJA_OUTPUT}/${SAMPLE_NAME}.ninjaMap.abundance.csv
       rm ${NINJA_OUTPUT}/*_summary_depth.tsv ${NINJA_OUTPUT}/tmp*.ninjaMap.abundance.csv
       rm ${NINJA_OUTPUT}/${SAMPLE_NAME}.singular.bam  ${NINJA_OUTPUT}/${SAMPLE_NAME}.escrow.bam
