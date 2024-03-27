@@ -60,8 +60,8 @@ def output_path = "${params.output_path}"
 process ninjaMap {
     tag "$sample"
     container "fischbachlab/nf-ninjamap:latest"
-    cpus { 16 * task.attempt }
-    memory { 128.GB * task.attempt }
+    cpus { 32 * task.attempt }
+    memory { 250.GB * task.attempt }
 
     errorStrategy { task.exitStatus in 137..140 ? 'retry' : 'terminate' }
     maxRetries 2
