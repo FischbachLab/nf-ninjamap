@@ -168,6 +168,7 @@ END
 mycpu=$(bc <<< "(`grep -c ^processor /proc/cpuinfo` - 1)" )
 # bowtie2 alignment returning multiple alignments and using longer max insert size limites
 # output samtools bam file with only properly aligned paired reads.
+# added(05/30/2024): output paired-end reads that fail to align concordantly.
 bowtie2 \
     --very-sensitive \
     -X ${maxInsert} \
@@ -178,6 +179,7 @@ bowtie2 \
     --no-discordant \
     --end-to-end \
     --no-unal \
+    --un-conc-gz ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_R%.fastq.gz \
     -1 ${QC_FASTQ}/read1_trimmed.fastq.gz \
     -2 ${QC_FASTQ}/read2_trimmed.fastq.gz | \
     samtools view \
@@ -242,7 +244,7 @@ fi
 
 # make sure the number of aligned reads > 1
 if [ $all_mapped_reads -gt 1 ]; then
-python ${scriptFolder}/ninjaMap_parallel_5.py \
+ninjaMap_parallel_5.py \
     -bam ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam \
     -bin ${referenceNameFile} \
     -outdir ${NINJA_OUTPUT} \
