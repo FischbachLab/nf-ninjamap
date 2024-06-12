@@ -1,4 +1,6 @@
 #!/usr/bin/env nextflow
+import groovy.json.JsonOutput
+
 nextflow.enable.dsl=2
 // If the user uses the --help flag, print the help text below
 params.help = false
@@ -20,7 +22,10 @@ def helpMessage() {
       --coreNum       num   Number of cores (e.g. 15)
       --memPerCore    num   Memory per core (e.g., 2G)
       --coverage      num   Outputting singular & escrow coverage and depth (0 or 1, default 0)
+      --minQuality    num   Regions with average quality BELOW this will be trimmed
+      --minLength     num   Reads shorter than this after trimming will be discarded
       -profile        docker  run locally
+
 
 
     """.stripIndent()
@@ -59,7 +64,7 @@ def output_path = "${params.output_path}"
  */
 process ninjaMap {
     tag "$sample"
-    container "fischbachlab/nf-ninjamap:latest"
+    container  params.container
     cpus { 32 * task.attempt }
     memory { 250.GB * task.attempt }
 
@@ -67,11 +72,11 @@ process ninjaMap {
     maxRetries 2
 
     publishDir "${output_path}", mode:'copy'
+
     input:
     tuple val(sample), val(reads1), val(reads2)
 
     output:
-    //path "tmp_*/Sync/bowtie2/*.sortedByCoord.bam"
 
     script:
     """
@@ -85,7 +90,31 @@ process ninjaMap {
     export S3DBPATH="${params.db_path}/${params.db}/db/"
     export S3OUTPUTPATH="${output_path}/${sample}"
     export STRAIN_MAP_FILENAME="${params.db_prefix}.ninjaIndex.binmap.csv"
+    export trimQuality="${params.minQuality}"
+    export minLength="${params.minLength}"
     ninjaMap_index_5.sh
+    """
+}
+
+/*
+  Save all parameters to a jason file
+  https://github.com/nextflow-io/nextflow/discussions/2892
+  //echo ${params} > ninjamap-parameters.txt
+*/
+process printParams {
+
+    container  params.container
+    publishDir "${params.output_path}"
+
+    errorStrategy = 'ignore'
+
+    output:
+    path "parameters.json"
+
+    script:
+    """
+    touch parameters.json
+    echo '${JsonOutput.toJson(params)}' > parameters.json
     """
 }
 
@@ -100,5 +129,5 @@ Channel
 workflow {
 
   seedfile_ch |  ninjaMap
-
+  printParams()
 }

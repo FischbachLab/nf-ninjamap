@@ -70,11 +70,11 @@ aws batch submit-job \
     --job-queue priority-maf-pipelines \
     --job-definition nextflow-production \
     --container-overrides command="fischbachlab/nf-ninjamap, \
-"--seedfile", "s3://genomics-workflow-core/Results/ninjamap/example_seedfile.csv", \
-"--db","SCv2_6_20210518", \
-"--db_prefix", "SCv2_6", \
+"--seedfile", "s3://genomics-workflow-core/Results/Ninjamap/project/example.seedfile.csv", \
+"--db","HCom2_20221117", \
+"--db_prefix", "HCom2", \
 "--db_path", "s3://maf-versioned/ninjamap/Index", \
-"--output_path", "s3://genomics-workflow-core/Results/Ninjamap/" "
+"--output_path", "s3://genomics-workflow-core/Results/Ninjamap/HCom2/project" "
 ```
 
 
@@ -99,8 +99,15 @@ aws batch submit-job \
 "--output_path", "s3://genomics-workflow-core/Results/Ninjamap/HCom2/20221018", \
 "--sampleRate", "0.5" "
 ```
-
-
+## Example 4: aws batch job parameters can also be configured using the -params-file option. A copy of the params will be automatically saved to a json file (parameters.json) in the run output bucket.
+```{bash}
+aws batch submit-job \
+    --job-name nf-ninjamap-MITI \
+    --job-queue priority-maf-pipelines \
+    --job-definition nextflow-production \
+    --container-overrides command="fischbachlab/nf-ninjamap, \
+    "-params-file", "s3://genomics-workflow-core/Results/Ninjamap/parameters/example_parameters.json" " 
+```
 Output files for each sample
 ====================
 
@@ -163,8 +170,12 @@ Bacteroides-coprocola-DSM-17136-MAF-2              2.898550724637681   0.0109683
 ## Stats folder
 1. **adapter_trimming_stats_per_ref.txt**: this file shows the statistics of adapter trimming
 
-2. **read_accounting.csv**: this file shows the statistics shows the total number of reads, the number of reads after trimming and the number of aligned reads
+2. **read_accounting.csv**: 
 
++ Sample_Name: sample name<br>
++ Total_Fragments: the total number of input raw read pairs<br>
++ Fragments_After_Trim: the number of read pairs after QC<br>
++ Fragments_Aligned: the number of aligned read pairs<br>
 
 Aggregated output files for each study
 ====================

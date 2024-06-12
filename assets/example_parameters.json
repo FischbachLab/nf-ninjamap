@@ -1,0 +1,12 @@
+{
+    "seedfile": "s3://genomics-workflow-core/Results/Ninjamap/seedfiles/DS008.seedfile.csv",
+    "db": "MITI-001v3_20240604",
+    "db_prefix": "MITI-001",
+    "minQuality": 25,
+    "minLength": 50,
+    "sampleRate": 1,
+    "coreNum": 16,
+    "memPerCore": "6G",
+    "coverage": 0,
+    "output_path": "s3://genomics-workflow-core/Results/Ninjamap/MITI-001v3/DS_test"
+}
