@@ -24,6 +24,7 @@ def helpMessage() {
       --coverage      num   Outputting singular & escrow coverage and depth (0 or 1, default 0)
       --minQuality    num   Regions with average quality BELOW this will be trimmed
       --minLength     num   Reads shorter than this after trimming will be discarded
+      --debug         num   enable debug mode to generate singular bam files (0 or 1, default 0)
       -profile        docker  run locally
 
 
@@ -49,6 +50,11 @@ if (params.db == "null") {
 
 if (params.db_prefix == "null") {
 	exit 1, "Missing the a database prefix"
+}
+
+// coverage must be enabled if enabling the debug mode
+if (params.debug == "1") {
+	  params.coverage = 1
 }
 
 /*
@@ -92,7 +98,8 @@ process ninjaMap {
     export STRAIN_MAP_FILENAME="${params.db_prefix}.ninjaIndex.binmap.csv"
     export trimQuality="${params.minQuality}"
     export minLength="${params.minLength}"
-    ninjaMap_index_5.sh
+    export debug="${params.debug}"
+    ninjaMap_index.sh
     """
 }
 
