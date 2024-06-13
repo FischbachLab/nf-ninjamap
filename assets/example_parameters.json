@@ -8,5 +8,6 @@
     "coreNum": 16,
     "memPerCore": "6G",
     "coverage": 0,
+    "debug": 0,
     "output_path": "s3://genomics-workflow-core/Results/Ninjamap/MITI-001v3/DS_test"
 }
