@@ -76,7 +76,6 @@ process ninjaMap {
 
     errorStrategy { task.exitStatus in 137..140 ? 'retry' : 'terminate' }
     maxRetries 2
-    time = { check_max( 12.h * task.attempt, 'time' ) }
 
     publishDir "${output_path}", mode:'copy'
 
