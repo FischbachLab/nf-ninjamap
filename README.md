@@ -108,7 +108,7 @@ aws batch submit-job \
     --container-overrides command="fischbachlab/nf-ninjamap, \
     "-params-file", "s3://genomics-workflow-core/Results/Ninjamap/parameters/example_parameters.json" " 
 ```
-### A debug option is added to the ninjamap pipeline. The debug and coverage must be set to 1 at the same time. After enabling this debug option, it will output two sets of bam files in two folders ninjaMap/debug/singular and ninjaMap/debug/escrow, respectively.
+### A debug option is added to the ninjamap pipeline. The debug and coverage must be set to 1 at the same time. After enabling this debug option, it will output two sets of bam files in two folders ninjaMap/debug/singular and ninjaMap/debug/escrow, respectively. Note that the run time might be doubled if using the debug option.
 
 + Singular set: singular(primary) bam, index bai and region bed files for each strain.
 + Escrow set: escrow bam, index bai and region bed files for each strain.   
