@@ -53,8 +53,8 @@ if (params.db_prefix == "null") {
 }
 
 // coverage must be enabled if enabling the debug mode
-if (params.debug == "1") {
-	  params.coverage = 1
+if (params.debug && !params.coverage ) {
+	  exit 1, "The coverage option must be set to 1 if enabling the debug option"
 }
 
 /*
@@ -76,6 +76,7 @@ process ninjaMap {
 
     errorStrategy { task.exitStatus in 137..140 ? 'retry' : 'terminate' }
     maxRetries 2
+    time = { check_max( 12.h * task.attempt, 'time' ) }
 
     publishDir "${output_path}", mode:'copy'
 
@@ -99,7 +100,7 @@ process ninjaMap {
     export trimQuality="${params.minQuality}"
     export minLength="${params.minLength}"
     export debug="${params.debug}"
-    ninjaMap_index.sh
+    ninjaMap.sh
     """
 }
 
