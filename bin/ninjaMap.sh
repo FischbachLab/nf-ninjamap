@@ -110,7 +110,7 @@ fi
 referenceNameFile=${LOCAL_DB_PATH}/${STRAIN_MAP_FILENAME}
 
 # Constant definitions for bbduk
-trimQuality="${trimQuality:-25}"
+trimQuality="${trimQuality:-30}"  # was 25
 minLength=${minLength:-50}
 kmer_value=${kmer_value:-23}
 min_kmer_value=${min_kmer_value:-11}
@@ -170,6 +170,7 @@ mycpu=$(bc <<< "(`grep -c ^processor /proc/cpuinfo` - 1)" )
 # bowtie2 alignment returning multiple alignments and using longer max insert size limites
 # output samtools bam file with only properly aligned paired reads.
 # added(05/30/2024): output paired-end reads that fail to align concordantly.
+# --no-overlap \
 bowtie2 \
     --very-sensitive \
     -X ${maxInsert} \
@@ -180,7 +181,6 @@ bowtie2 \
     --no-discordant \
     --end-to-end \
     --no-unal \
-    --no-overlap \
     --un-conc-gz ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_R%.fastq.gz \
     -1 ${QC_FASTQ}/read1_trimmed.fastq.gz \
     -2 ${QC_FASTQ}/read2_trimmed.fastq.gz | \
