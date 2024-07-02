@@ -295,7 +295,7 @@ if [ ${coverage} -eq 1 ];
 then
     s="singular"
     samtools sort -@ ${coreN} ${NINJA_OUTPUT}/${SAMPLE_NAME}.singular.bam > ${NINJA_OUTPUT}/${SAMPLE_NAME}.singular_sorted.bam
-    bedtools bamtobed -i ${NINJA_OUTPUT}/${SAMPLE_NAME}.singular_sorted.bam > ${NINJA_OUTPUT}/${SAMPLE_NAME}.${s}.bed
+    bedtools bamtobed -i ${NINJA_OUTPUT}/${SAMPLE_NAME}.singular_sorted.bam | cut -f1,2,3 > ${NINJA_OUTPUT}/${SAMPLE_NAME}.${s}.bed
     samtools index  ${NINJA_OUTPUT}/${SAMPLE_NAME}.singular_sorted.bam
     echo -e "Strain_Name\tSingular_Coverage\tSingular_Depth\tSingular_Bases" > ${NINJA_OUTPUT}/${s}_summary_depth.tsv
     #for i in $(cut -f1 Ninja.genomes | sed  's/_Node.*//' |  uniq )  | cut -f1,2,3 -
@@ -329,7 +329,7 @@ then
 
      s="escrow"
      samtools sort -@ ${coreN} ${NINJA_OUTPUT}/${SAMPLE_NAME}.escrow.bam > ${NINJA_OUTPUT}/${SAMPLE_NAME}.escrow_sorted.bam
-     bedtools bamtobed -i ${NINJA_OUTPUT}/${SAMPLE_NAME}.escrow_sorted.bam  > ${NINJA_OUTPUT}/${SAMPLE_NAME}.${s}.bed
+     bedtools bamtobed -i ${NINJA_OUTPUT}/${SAMPLE_NAME}.escrow_sorted.bam  | cut -f1,2,3 > ${NINJA_OUTPUT}/${SAMPLE_NAME}.${s}.bed
      samtools index ${NINJA_OUTPUT}/${SAMPLE_NAME}.escrow_sorted.bam 
      echo -e "Strain_Name\tEscrow_Coverage\tEscorw_Depth\tEscorw_Bases" > ${NINJA_OUTPUT}/${s}_summary_depth.tsv
      for i in $(cat ${GENOME_COV_OUTPUT}/DBGenomeNameList.txt)
