@@ -3,6 +3,9 @@ Sample scripts
 
 The simple scripts shows how to run ninjamap jobs under the Nextflow framework.
 
+
+## [ninjaMap workflow](workflow.md) 
+
 ## Command line example for a single sample in local mode
 ```{bash}
 nextflow run \
