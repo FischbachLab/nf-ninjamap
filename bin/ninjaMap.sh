@@ -2,7 +2,7 @@
 # shellcheck disable=SC2086
 # shellcheck disable=SC2154
 
-set -e
+#set -e
 set -u
 set -o pipefail
 
@@ -43,6 +43,7 @@ human="${human:-0}"
 mouse="${mouse:-0}"
 coverage="${coverage:-0}"
 debug="${debug:-0}"
+bedN="${bedN:-1000000}" # bedfile threshold 1M 
 # Inputs
 # S3OUTPUTPATH=s3://czbiohub-microbiome/Sunit_Jain/Synthetic_Community/ninjaMap/2019-05-16_StrainVerification/Dorea-longicatena-DSM-13814
 # fastq1=s3://czbiohub-microbiome/Original_Sequencing_Data/180727_A00111_0179_BH72VVDSXX/Alice_Cheng/Strain_Verification/Dorea-longicatena-DSM-13814_S275_R1_001.fastq.gz
@@ -363,35 +364,22 @@ then
       rm ${NINJA_OUTPUT}/*_summary_depth.tsv ${NINJA_OUTPUT}/tmp*.ninjaMap.abundance.csv
       rm ${NINJA_OUTPUT}/${SAMPLE_NAME}.singular.bam  ${NINJA_OUTPUT}/${SAMPLE_NAME}.escrow.bam
       #rm ${NINJA_OUTPUT}/*.bed
+
+      if [ ${debug} -eq 1 ];
+      then
+        mkdir -p "${NINJA_OUTPUT}/debug/all"
+        mv ${NINJA_OUTPUT}/*_sorted.bam "${NINJA_OUTPUT}/debug/all"
+        mv ${NINJA_OUTPUT}/*_sorted.bam.bai "${NINJA_OUTPUT}/debug/all"
+        mv ${NINJA_OUTPUT}/*.bed "${NINJA_OUTPUT}/debug/all"
+
+      fi
 fi
 
 #################################################################
-# debug mode
-# Generate singular&escrow bam files for each genome
-################################################################
-if [ ${debug} -eq 1 ];
-then
-    mkdir -p "${NINJA_OUTPUT}/debug/all"
-    for s in {singular,escrow}; 
-      do
-        mkdir -p "${NINJA_OUTPUT}/debug/${s}"
-        for i in $(cat ${GENOME_COV_OUTPUT}/DBGenomeNameList.txt)
-        do
-            if [ $(grep -c "^$i" ${NINJA_OUTPUT}/${SAMPLE_NAME}.${s}.bed) -eq 0 ];
-            then
-              > ${GENOME_COV_OUTPUT}/tmp.bed
-            else
-              grep "^$i" ${NINJA_OUTPUT}/${SAMPLE_NAME}.${s}.bed | sort | uniq | cut -f1,2,3  > "${NINJA_OUTPUT}/debug/${s}/${i}.bed"
-              bedtools intersect -abam ${NINJA_OUTPUT}/${SAMPLE_NAME}.${s}_sorted.bam -b "${NINJA_OUTPUT}/debug/${s}/${i}.bed" > "${NINJA_OUTPUT}/debug/${s}/${i}_${s}.bam"
-              samtools index -@ ${coreN} "${NINJA_OUTPUT}/debug/${s}/${i}_${s}.bam"
-            fi
-        done
-      done
+# Copy ninjaMap results before running debug mode
+#################################################################
+aws s3 sync --quiet "${LOCAL_OUTPUT}" "${S3OUTPUTPATH}"
 
-     mv ${NINJA_OUTPUT}/*_sorted.bam "${NINJA_OUTPUT}/debug/all"
-     mv ${NINJA_OUTPUT}/*_sorted.bam.bai "${NINJA_OUTPUT}/debug/all"
-     mv ${NINJA_OUTPUT}/*.bed "${NINJA_OUTPUT}/debug/all"
-fi
 
 :<<"COMM"
 if [ ${coverage} -eq 1 ];
@@ -497,6 +485,36 @@ then
 else
   LINE="${SAMPLE_NAME},Mouse,0,0,0,0"
   echo "$LINE" >> ${LOG_DIR}/Host_Contaminants_stats.csv
+fi
+
+#################################################################
+# debug mode
+# Generate singular&escrow bam files for each genome
+################################################################
+if [ ${debug} -eq 1 ];
+then
+    for s in {singular,escrow}; 
+      do
+        mkdir -p "${NINJA_OUTPUT}/debug/${s}"
+        bed_line=0
+        for i in $(cat ${GENOME_COV_OUTPUT}/DBGenomeNameList.txt)
+        do
+            bed_line=`grep -c "^$i" ${NINJA_OUTPUT}/debug/all/${SAMPLE_NAME}.${s}.bed`
+            if [ ${bed_line} -eq 0 ];
+            then
+              > ${GENOME_COV_OUTPUT}/tmp.bed
+            else
+              grep "^$i" ${NINJA_OUTPUT}/debug/all/${SAMPLE_NAME}.${s}.bed | sort | uniq | cut -f1,2,3  > "${NINJA_OUTPUT}/debug/${s}/${i}.bed"
+              # Check if generating the bam file
+              if [ ${bed_line} -lt ${bedN} ];
+              then
+                # the job is failed/stuck here when the bed file is too big
+                bedtools intersect -abam ${NINJA_OUTPUT}/debug/all/${SAMPLE_NAME}.${s}_sorted.bam -b "${NINJA_OUTPUT}/debug/${s}/${i}.bed" > "${NINJA_OUTPUT}/debug/${s}/${i}_${s}.bam"
+                samtools index -@ ${coreN} "${NINJA_OUTPUT}/debug/${s}/${i}_${s}.bam"
+              fi
+            fi
+        done
+      done
 fi
 
 
