@@ -191,9 +191,9 @@ Aggregated output files for each study
 
 The aggregated output files are organized into 6 files.
 
-1. **\*.covDepth.csv**: this file shows the average coverage depth per strain by samples
-2. **\*.host_contaminants.csv**: this file shows the detected host contaminants (Human or Mouse) by samples if the unalignment rate is over 5%
+1. **\*.covDepth.csv**: this file shows the average coverage depth per strain by samples.
+2. **\*.host_contaminants.csv**: this file shows the detected host contaminants (Human and Mouse) by samples if the unalignment rate is over 5%.
 3. **\*.long.csv**: this is the long format of three files (\*.readFraction.csv, \*.covDepth.csv and \*.percCoverage.csv)
-4. **\*.percCoverage.csv**: this file shows the average coverage per strain in percentage by samples
-5. **\*.reads_stats.csv**: this file shows the reads statistics in read numbers by samples
-6. **\*.readFraction.csv**: this file shows the abundance in the defined community in percentage by samples
+4. **\*.percCoverage.csv**: this file shows the average coverage per strain in percentage by samples.
+5. **\*.reads_stats.csv**: this file shows the reads statistics in read numbers by samples. (Reads_wPerfect_Aln (Col.G) / Reads_Aligned(Col.F) is equal to the sum of all abundance numbers for a sample in readFraction.)
+6. **\*.readFraction.csv**: this file shows the relative abundance in the defined community in percentage by samples. (The relative abundance is denoted by the fraction of the total QCed filtered reads in a sample that aligned perfectly to at least one strain in the database. Since that almost never happens, the fractions don’t sum to 100%.)
