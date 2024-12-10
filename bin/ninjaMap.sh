@@ -182,7 +182,7 @@ bowtie2 \
     --no-discordant \
     --end-to-end \
     --no-unal \
-    --un-conc-gz ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_R%.fastq.gz \
+    --un-conc-gz ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R%.fastq.gz \
     -1 ${QC_FASTQ}/read1_trimmed.fastq.gz \
     -2 ${QC_FASTQ}/read2_trimmed.fastq.gz | \
     samtools view \
@@ -191,6 +191,20 @@ bowtie2 \
         -o ${TMP_OUTPUTS}/${SAMPLE_NAME}.bam - |\
     tee -a ${LOG_DIR}/read_mapping.log.txt
 
+bowtie2 \
+    --very-sensitive \
+    -X ${maxInsert} \
+    -k ${maxAlignments} \
+    --threads ${mycpu} \
+    -x ${BOWTIE2_DB} \
+    --no-mixed \
+    --no-discordant \
+    --end-to-end \
+    --no-unal \
+    --un-conc-gz ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_R%.fastq.gz \
+    --no-overlap \
+    --1 ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz \
+    --2 ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R2.fastq.gz
 
 # Original bowtie2 parameters
 # Removed: -f 3 \
