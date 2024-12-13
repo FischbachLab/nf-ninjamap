@@ -122,6 +122,15 @@ echo "Starting to Process Sample: "${SAMPLE_NAME}
 aws s3 cp --quiet ${fastq1} ${RAW_FASTQ}/read1.fastq.gz
 aws s3 cp --quiet ${fastq2} ${RAW_FASTQ}/read2.fastq.gz
 
+# fix the deplicated reads in fastq by headers
+#zcat ${RAW_FASTQ}/read1.fastq.gz | awk '{if(NR%4==1) { if(!seen[$0]++) {print $0; getline; print $0; getline; print $0; getline; print $0;} } }' > ${RAW_FASTQ}/deduped_read1.fastq
+#zcat ${RAW_FASTQ}/read2.fastq.gz | awk '{if(NR%4==1) { if(!seen[$0]++) {print $0; getline; print $0; getline; print $0; getline; print $0;} } }' > ${RAW_FASTQ}/deduped_read2.fastq
+#reformat.sh \
+#in=${RAW_FASTQ}/deduped_read1.fastq \
+#in2=${RAW_FASTQ}/deduped_read2.fastq \
+#out=${RAW_FASTQ}/deduped_read1.fastq.gz \
+#out2=${RAW_FASTQ}/deduped_read2.fastq.gz
+
 # Downsample reads to get results faster
 reformat.sh \
 samplerate=${sampleRate} \
@@ -172,6 +181,7 @@ mycpu=$(bc <<< "(`grep -c ^processor /proc/cpuinfo` - 1)" )
 # output samtools bam file with only properly aligned paired reads.
 # added(05/30/2024): output paired-end reads that fail to align concordantly.
 # --no-overlap \
+#  --un-conc-gz
 bowtie2 \
     --very-sensitive \
     -X ${maxInsert} \
@@ -191,20 +201,30 @@ bowtie2 \
         -o ${TMP_OUTPUTS}/${SAMPLE_NAME}.bam - |\
     tee -a ${LOG_DIR}/read_mapping.log.txt
 
-bowtie2 \
-    --very-sensitive \
-    -X ${maxInsert} \
-    -k ${maxAlignments} \
-    --threads ${mycpu} \
-    -x ${BOWTIE2_DB} \
-    --no-mixed \
-    --no-discordant \
-    --end-to-end \
-    --no-unal \
-    --un-conc-gz ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_R%.fastq.gz \
-    --no-overlap \
-    --1 ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz \
-    --2 ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R2.fastq.gz
+if [ -e "${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz" ]; then 
+  file_size=$(du -k "${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz" | cut -f 1 )
+  if [ $file_size -gt 100 ]; then
+    echo "${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz exists."
+    bowtie2 \
+        --very-sensitive \
+        -X ${maxInsert} \
+        -k ${maxAlignments} \
+        --threads ${mycpu} \
+        -x ${BOWTIE2_DB} \
+        --no-mixed \
+        --no-discordant \
+        --end-to-end \
+        --no-unal \
+        --un-conc-gz ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_R%.fastq.gz \
+        --no-overlap \
+        -1 ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz \
+        -2 ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R2.fastq.gz | \
+      samtools view \
+            -@ ${mycpu} \
+            -bh \
+            -o ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_overlapped_mapped.bam -
+  fi 
+fi
 
 # Original bowtie2 parameters
 # Removed: -f 3 \
@@ -276,7 +296,11 @@ fi
 # Tabulate read count
 totalReads=$(( $( zcat ${RAW_FASTQ}/read1_sampled.fastq.gz | wc -l ) / 4 ))
 readsAfterTrim=$(( $( zcat ${QC_FASTQ}/read1_trimmed.fastq.gz | wc -l ) / 4 ))
-uniqueReads=$( samtools view -f 0x40 ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam | cut -f1 | sort -u | wc -l )
+
+# Not working on duplicated reads using flagstat instead
+#uniqueReads=$( samtools view -f 0x40 ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam | cut -f1 | sort -u | wc -l )
+uniqueReads=$( samtools flagstat ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam | awk 'NR == 7 {print $1}' )
+
 echo 'Sample_Name,Total_Fragments,Fragments_After_Trim,Fragments_Aligned' > ${STATS_DIR}/read_accounting.csv
 echo ${SAMPLE_NAME}','${totalReads}','${readsAfterTrim}','${uniqueReads} >> ${STATS_DIR}/read_accounting.csv
 
