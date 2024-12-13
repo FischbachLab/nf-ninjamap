@@ -1,0 +1,2 @@
+sampleName,R1,R2
+test_sample,/path/to/nf-ninjamap/data/read1.fastq.gz,/path/to/nf-ninjamap/data/read2.fastq.gz
