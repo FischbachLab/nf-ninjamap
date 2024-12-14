@@ -122,7 +122,8 @@ echo "Starting to Process Sample: "${SAMPLE_NAME}
 aws s3 cp --quiet ${fastq1} ${RAW_FASTQ}/read1.fastq.gz
 aws s3 cp --quiet ${fastq2} ${RAW_FASTQ}/read2.fastq.gz
 
-# fix the deplicated reads in fastq by headers
+# fix: dereplicate reads in raw fastq by headers
+####################################################
 #zcat ${RAW_FASTQ}/read1.fastq.gz | awk '{if(NR%4==1) { if(!seen[$0]++) {print $0; getline; print $0; getline; print $0; getline; print $0;} } }' > ${RAW_FASTQ}/deduped_read1.fastq
 #zcat ${RAW_FASTQ}/read2.fastq.gz | awk '{if(NR%4==1) { if(!seen[$0]++) {print $0; getline; print $0; getline; print $0; getline; print $0;} } }' > ${RAW_FASTQ}/deduped_read2.fastq
 #reformat.sh \
@@ -130,6 +131,7 @@ aws s3 cp --quiet ${fastq2} ${RAW_FASTQ}/read2.fastq.gz
 #in2=${RAW_FASTQ}/deduped_read2.fastq \
 #out=${RAW_FASTQ}/deduped_read1.fastq.gz \
 #out2=${RAW_FASTQ}/deduped_read2.fastq.gz
+####################################################
 
 # Downsample reads to get results faster
 reformat.sh \
@@ -176,7 +178,7 @@ END
 
 # Try to use all available cores to speed up alignments
 #mycpu=`grep -c ^processor /proc/cpuinfo`
-mycpu=$(bc <<< "(`grep -c ^processor /proc/cpuinfo` - 1)" )
+mycpu=$(bc <<< "(`grep -c ^processor /proc/cpuinfo` - 2)" )
 # bowtie2 alignment returning multiple alignments and using longer max insert size limites
 # output samtools bam file with only properly aligned paired reads.
 # added(05/30/2024): output paired-end reads that fail to align concordantly.
