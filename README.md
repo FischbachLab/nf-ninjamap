@@ -6,7 +6,7 @@ The simple scripts shows how to run ninjamap jobs under the Nextflow framework.
 
 ## [ninjaMap workflow](workflow.md) 
 
-## Command line example for a single sample in local mode
+## Command line example for a single sample for files stored in an S3 bucket on a local server
 ```{bash}
 nextflow run \
 main-local.nf \
@@ -192,7 +192,7 @@ Aggregated output files for each study
 The aggregated output files are organized into 6 files.
 
 1. **\*.covDepth.csv**: this file shows the average coverage depth per strain by samples.
-2. **\*.host_contaminants.csv**: this file shows the detected host contaminants (Human and Mouse) by samples if the unalignment rate is over 5%.
+2. **\*.host_contaminants.csv**: this file shows the detected host contaminants (Human and Mouse) by samples if the unaligned read rate is over 5%.
 3. **\*.long.csv**: this is the long format of three files (\*.readFraction.csv, \*.covDepth.csv and \*.percCoverage.csv)
 4. **\*.percCoverage.csv**: this file shows the average coverage per strain in percentage by samples.
 5. **\*.reads_stats.csv**: this file shows the reads statistics in read numbers by samples. (Reads_wPerfect_Aln (Col.G) / Reads_Aligned(Col.F) is equal to the sum of all abundance numbers for a sample in readFraction.)
