@@ -204,11 +204,11 @@ scripts/aggregation/aggregate_results_template.Rmd
 5. **\*.reads_stats.csv**: this file shows the reads statistics in read numbers by samples. (Reads_wPerfect_Aln (Col.G) / Reads_Aligned(Col.F) is equal to the sum of all abundance numbers for a sample in readFraction.)
 6. **\*.readFraction.csv**: this file shows the relative abundance in the defined community in percentage by samples. (The relative abundance is denoted by the fraction of the total QCed filtered reads in a sample that aligned perfectly to at least one strain in the database. Since that almost never happens, the fractions don’t sum to 100%.)
 
-### ninjaMap read fate definitions in waffle plot.
+### The ninjaMap read fate definitions in waffle plot.
 
-1. Primary: reads that align to a single reference within the queried database
-2. Escrow: reads that align to multiple references within the queried database. Escrow reads are divided based on the Primary read fraction of the relevant references.
-3. QC Fail: reads whose length < 50 after read trimming at a threshold of Q<30 by default
-4. Missed: reads that have some amount of mismatch against the queried db but still align to a targeted reference within the queried db ( up to 18% mismatch)
-5. Unaligned: reads that do not align to the queried db (designation from bowtie2)
-6. Discarded: reads that perfectly match too many strains in the queried db such that they cannot be distributed among the db strains. These reads represent coverage of highly conserved regions.
+1. **Primary**: reads that align to a single reference within the queried database
+2. **Escrow**: reads that align to multiple references within the queried database. Escrow reads are divided based on the Primary read fraction of the relevant references.
+3. **QC Fail**: reads whose length < 50 after read trimming at a threshold of Q<30 by default
+4. **Missed**: reads that have some amount of mismatch against the queried db but still align to a targeted reference within the queried db ( up to 18% mismatch)
+5. **Unaligned**: reads that do not align to the queried db (designation from bowtie2)
+6. **Discarded**: reads that perfectly match too many strains in the queried db such that they cannot be distributed among the db strains. These reads represent coverage of highly conserved regions.
