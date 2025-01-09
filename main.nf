@@ -99,6 +99,7 @@ process ninjaMap {
     export trimQuality="${params.minQuality}"
     export minLength="${params.minLength}"
     export debug="${params.debug}"
+    export ref_db="${params.ref_db_path}"
     ninjaMap.sh
     """
 }

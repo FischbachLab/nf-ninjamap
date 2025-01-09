@@ -122,22 +122,38 @@ echo "Starting to Process Sample: "${SAMPLE_NAME}
 aws s3 cp --quiet ${fastq1} ${RAW_FASTQ}/read1.fastq.gz
 aws s3 cp --quiet ${fastq2} ${RAW_FASTQ}/read2.fastq.gz
 
-# fix: dereplicate reads in raw fastq by headers
-####################################################
-#zcat ${RAW_FASTQ}/read1.fastq.gz | awk '{if(NR%4==1) { if(!seen[$0]++) {print $0; getline; print $0; getline; print $0; getline; print $0;} } }' > ${RAW_FASTQ}/deduped_read1.fastq
-#zcat ${RAW_FASTQ}/read2.fastq.gz | awk '{if(NR%4==1) { if(!seen[$0]++) {print $0; getline; print $0; getline; print $0; getline; print $0;} } }' > ${RAW_FASTQ}/deduped_read2.fastq
-#reformat.sh \
-#in=${RAW_FASTQ}/deduped_read1.fastq \
-#in2=${RAW_FASTQ}/deduped_read2.fastq \
-#out=${RAW_FASTQ}/deduped_read1.fastq.gz \
-#out2=${RAW_FASTQ}/deduped_read2.fastq.gz
-####################################################
+##################################################################################################
+# check if there are duplicated headers in raw data
+##################################################################################################
+# randomly sample 10k reads
+reformat.sh samplereadstarget=10000 sampleseed=123 fixheaders=t in=${RAW_FASTQ}/read1.fastq.gz  in2=${RAW_FASTQ}/read2.fastq.gz  out=${RAW_FASTQ}/sampled_10k_R1.fastq.gz out2=${RAW_FASTQ}/sampled_10k_R2.fastq.gz    
+   
+header1_count=$(zcat ${RAW_FASTQ}/sampled_10k_R1.fastq.gz| awk 'NR%4==1 {print $0}' | wc -l)
+header2_count=$(zcat ${RAW_FASTQ}/sampled_10k_R1.fastq.gz | awk 'NR%4==1 {print $0}' | sort | uniq | wc -l)
+
+if [ "${header1_count}" = "${header2_count}" ]; then
+  echo "No duplicated read headers found."
+  mv ${RAW_FASTQ}/read1.fastq.gz ${RAW_FASTQ}/deduped_read1.fastq.gz
+  mv ${RAW_FASTQ}/read2.fastq.gz ${RAW_FASTQ}/deduped_read2.fastq.gz
+else
+  echo "There are duplicated read headers. Deduplicating reads ....."
+  # fix: dereplicate reads in raw fastq by headers
+  zcat ${RAW_FASTQ}/read1.fastq.gz | awk '{if(NR%4==1) { if(!seen[$0]++) {print $0; getline; print $0; getline; print $0; getline; print $0;} } }' > ${RAW_FASTQ}/deduped_read1.fastq
+  zcat ${RAW_FASTQ}/read2.fastq.gz | awk '{if(NR%4==1) { if(!seen[$0]++) {print $0; getline; print $0; getline; print $0; getline; print $0;} } }' > ${RAW_FASTQ}/deduped_read2.fastq
+  reformat.sh \
+  in=${RAW_FASTQ}/deduped_read1.fastq \
+  in2=${RAW_FASTQ}/deduped_read2.fastq \
+  out=${RAW_FASTQ}/deduped_read1.fastq.gz \
+  out2=${RAW_FASTQ}/deduped_read2.fastq.gz
+fi
+
+##################################################################################################
 
 # Downsample reads to get results faster
 reformat.sh \
 samplerate=${sampleRate} \
 sampleseed=1772 \
-in="${RAW_FASTQ}/read1.fastq.gz" in2="${RAW_FASTQ}/read2.fastq.gz" \
+in="${RAW_FASTQ}/deduped_read1.fastq.gz" in2="${RAW_FASTQ}/deduped_read2.fastq.gz" \
 out="${RAW_FASTQ}/read1_sampled.fastq.gz" out2="${RAW_FASTQ}/read2_sampled.fastq.gz" \
 &> ${LOG_DIR}/reformat.log.txt
 
@@ -206,7 +222,7 @@ bowtie2 \
 if [ -e "${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz" ]; then 
   file_size=$(du -k "${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz" | cut -f 1 )
   if [ $file_size -gt 100 ]; then
-    echo "${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz exists."
+    echo "${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz exists. Removing the overlapped pairs from the unmapped bin."
     bowtie2 \
         --very-sensitive \
         -X ${maxInsert} \
@@ -462,7 +478,7 @@ then
     # download genome index
     #aws s3 sync --quiet s3://maf-versioned/ninjamap/bowtie2/human/ ${DOWNLOAD_DB}/GRCh38/
     # link genome index
-    ln -s /mnt/efs/databases/Bowtie2/human ${DOWNLOAD_DB}/GRCh38
+    ln -s ${ref_db}/human ${DOWNLOAD_DB}/GRCh38
     #aws s3 cp --quiet s3://czbiohub-microbiome/ReferenceDBs/bowtie2/GRCh38_noalt_as.zip ${DOWNLOAD_DB}/GRCh38_noalt_as.zip
     #unzip "${DOWNLOAD_DB}/GRCh38_noalt_as.zip"
     # bowtie2 mapping against host sequence database, keep both aligned and unaligned reads (paired-end reads)
@@ -498,7 +514,7 @@ then
   # download genome index
   #aws s3 sync --quiet s3://maf-versioned/ninjamap/bowtie2/mouse/ ${DOWNLOAD_DB}/GRCm39/
   # link genome index
-  ln -s /mnt/efs/databases/Bowtie2/mouse ${DOWNLOAD_DB}/GRCm39
+  ln -s ${ref_db}/mouse ${DOWNLOAD_DB}/GRCm39
   #aws s3 cp --quiet s3://czbiohub-microbiome/ReferenceDBs/bowtie2/GRCm39.zip ${DOWNLOAD_DB}/GRCm39.zip
   #unzip "${DOWNLOAD_DB}/GRCm39.zip"
   # bowtie2 mapping against host sequence database, keep both aligned and unaligned reads (paired-end reads)
