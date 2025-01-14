@@ -3,8 +3,9 @@ Sample scripts
 
 The simple scripts shows how to run ninjamap jobs under the Nextflow framework.
 
-
 ## [ninjaMap workflow](workflow.md) 
+
+## [Run ninjaMap on premise servers](local/README.md)
 
 ## Command line example for a single sample for files stored in an S3 bucket on a local server
 ```{bash}

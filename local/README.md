@@ -1,4 +1,4 @@
-A sample script shows how to run ninjamap jobs under the Nextflow framework on a local computer.
+A sample script shows how to run ninjamap jobs under the Nextflow framework on premise servers.
 ====================
 
 1. Install [nextflow](https://www.nextflow.io/)
@@ -6,7 +6,7 @@ A sample script shows how to run ninjamap jobs under the Nextflow framework on a
 
 ## [ninjaMap workflow]
 
-## Command line example for a single sample for files stored on a local server using a seedfile
+## Command line example for a single sample for files stored on an premise servers using a seedfile.
 ```{bash}
 nextflow run main.nf --seedfile /path/to/test_seedfile.csv --output_path /path/to/local/output
 ```
