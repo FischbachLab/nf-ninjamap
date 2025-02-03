@@ -1,4 +1,4 @@
-Sample scripts
+ninjaMap - Calculate strain abundance in a defined community
 ====================
 
 The simple scripts shows how to run ninjamap jobs under the Nextflow framework.
@@ -7,7 +7,7 @@ The simple scripts shows how to run ninjamap jobs under the Nextflow framework.
 
 ## [Run ninjaMap on premise servers](local/README.md)
 
-## Command line example for a single sample for files stored in an S3 bucket on a local server
+## Command line example for a single sample for files stored in an S3 bucket on a premise server
 ```{bash}
 nextflow run \
 main-local.nf \
@@ -45,7 +45,7 @@ docker container run \
 ```
 
 ## Seedfile example
-### Note that the seedfile is a CSV (comma-separated values) file with header
+### Note that the seedfile is a CSV (comma-separated values) file with its header
 ### The format of the seedfile is sample_name,short_R1,short_R2
 
 ```{bash}

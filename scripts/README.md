@@ -1,4 +1,4 @@
-Aggregated output files for each study
+Aggregate output files for individual samples
 ====================
 
 
@@ -15,7 +15,7 @@ scripts/aggregation/aggregate_results_template.Rmd
 5. Update study_name, e.g., hCom2-DietaryIntervention
 6. Update the output dir: workdir
 
-Outputs files
+Aggregated Output files
 ====================
 
 ### The aggregated output files are organized into 6 files.
