@@ -237,6 +237,7 @@ bowtie2 \
           --no-unal \
           --un-conc-gz ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_R%.fastq.gz \
           --no-overlap \
+          --no-contain \
           -1 ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz \
           -2 ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R2.fastq.gz | \
         samtools view \
