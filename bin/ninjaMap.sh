@@ -220,12 +220,12 @@ bowtie2 \
     tee -a ${LOG_DIR}/read_mapping.log.txt
 
 # removed --no-discordant to eliminate discordant aligned pairs in the unmapped bin
-# NOT working on a large dataset with a high unmapped rate
-#if false; then 
+# skip the following step if there too many unmapped reads
+
   if [ -e "${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz" ]; then 
-    file_size=$(du -k "${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz" | cut -f 1 )
-    if [ $file_size -gt 100 ]; then
-      echo "${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz exists. Removing the overlapped pairs from the unmapped bin."
+    file_size=$(du -m "${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz" | cut -f 1 )
+    if [ $file_size -gt 1 ] && [ $file_size -lt 750 ]; then
+      echo "${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz exists. Removing the overlapped, discondant and containment pairs from the unmapped bin."
       bowtie2 \
           --very-sensitive \
           -X ${maxInsert} \
@@ -246,7 +246,6 @@ bowtie2 \
               -o ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_overlapped_mapped.bam -
     fi 
   fi
-#fi
 # Original bowtie2 parameters
 # Removed: -f 3 \
 # Removed: -D 10 -R 2 -L 31 -i S,0,2.50 -N 0

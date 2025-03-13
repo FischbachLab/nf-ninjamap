@@ -126,6 +126,44 @@ process printParams {
     """
 }
 
+/*
+ * Parse software version numbers
+ */
+process get_software_versions {
+
+    container  params.container
+    errorStrategy 'ignore'
+    publishDir "${params.output_path}/pipeline_info"
+    //saveAs: {filename ->
+    //    if (filename.indexOf(".csv") > 0) filename
+    //    else null
+    //}
+
+    output:
+    path 'software_versions_ninjamap.yaml'
+    //path 'software_versions_ninja.yaml'
+    //path "software_versions.csv"
+    //path "*.txt"
+
+    script:
+    // Get all tools to print their version number here
+    // scrape_software_versions.py &> software_versions_ninjamap.yaml
+     //echo $workflow.manifest.version > v_pipeline.txt
+    //echo $workflow.nextflow.version > v_nextflow.txt
+    //python --version > v_python.txt
+    //printf "pipeline_hash: %s\n" ${workflow.scriptId} >> software_versions_ninjamap.yaml
+    """
+    printf "nextflow_version: %s\n" ${workflow.nextflow.version} > software_versions_ninjamap.yaml
+    printf "pipeline_version: %s\n" ${workflow.manifest.version} >> software_versions_ninjamap.yaml
+    printf "samtools_version: %s\n" \$(samtools --version | head -1 | awk '{print \$NF}') >> software_versions_ninjamap.yaml
+    printf "bedtools_version: %s\n" \$(bedtools --version | head -1 | awk -F " v" '{print \$2}') >> software_versions_ninjamap.yaml
+    printf "bowtie2_version: %s\n" \$(bowtie2 --version | grep -a bowtie2-align-s | awk '{print \$NF}') >> software_versions_ninjamap.yaml
+    printf "python_version: %s\n" \$(python --version | awk '{print \$NF}') >> software_versions_ninjamap.yaml
+    """
+}
+
+
+
 
 Channel
  .fromPath(params.seedfile)
@@ -135,7 +173,7 @@ Channel
  .set { seedfile_ch }
 
 workflow {
-
+  get_software_versions()
   seedfile_ch |  ninjaMap
   printParams()
 }
