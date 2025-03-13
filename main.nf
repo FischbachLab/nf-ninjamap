@@ -159,6 +159,7 @@ process get_software_versions {
     printf "bedtools_version: %s\n" \$(bedtools --version | head -1 | awk -F " v" '{print \$2}') >> software_versions_ninjamap.yaml
     printf "bowtie2_version: %s\n" \$(bowtie2 --version | grep -a bowtie2-align-s | awk '{print \$NF}') >> software_versions_ninjamap.yaml
     printf "python_version: %s\n" \$(python --version | awk '{print \$NF}') >> software_versions_ninjamap.yaml
+    printf "biopython_version: %s\n" \$(python -c "import Bio; print(Bio.__version__)") >> software_versions_ninjamap.yaml
     """
 }
 
