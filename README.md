@@ -13,12 +13,17 @@ nextflow run \
 main-local.nf \
 --reads1 's3://nextflow-pipelines/nf-ninjamap/data/read1.fastq.gz' \
 --reads2 's3://nextflow-pipelines/nf-ninjamap/data/read2.fastq.gz' \
+--project HCom2_project \
 --db HCom2_20221117 \
 --db_prefix HCom2 \
---output_path 's3://genomics-workflow-core/Results/Ninjamap/local' \
+--output_path 's3://genomics-workflow-core/Results/Ninjamap/' \
 -profile docker
 ```
-
+## The output ninjaMap results of the above job can be found at
+```{bash}
+${params.output_path}/${params.db_prefix}/${params.project}/
+s3://genomics-workflow-core/Results/Ninjamap/HCom2/HCom2_project/
+```
 ## Test dataset
 The test dataset is available in the data directory
 ```{bash}
@@ -61,10 +66,11 @@ aws batch submit-job \
   --job-definition nextflow-production \
   --container-overrides command="fischbachlab/nf-ninjamap, \
 "--seedfile", "s3://genomics-workflow-core/Results/ninjamap/example_seedfile.csv", \
+"--project", "biohub"，\
 "--db","SCv2_4_20210212", \
 "--db_prefix", "SCv2_4", \
 "--db_path", "s3://maf-versioned/ninjamap/Index", \
-"--output_path", "s3://genomics-workflow-core/Results/Ninjamap/biohub" "
+"--output_path", "s3://genomics-workflow-core/Results/Ninjamap" "
 ```
 
 ## Example 2: aws batch job
@@ -75,10 +81,11 @@ aws batch submit-job \
     --job-definition nextflow-production \
     --container-overrides command="fischbachlab/nf-ninjamap, \
 "--seedfile", "s3://genomics-workflow-core/Results/Ninjamap/project/example.seedfile.csv", \
+"--project", "new_project"，\
 "--db","HCom2_20221117", \
 "--db_prefix", "HCom2", \
 "--db_path", "s3://maf-versioned/ninjamap/Index", \
-"--output_path", "s3://genomics-workflow-core/Results/Ninjamap/HCom2/project" "
+"--output_path", "s3://genomics-workflow-core/Results/Ninjamap" "
 ```
 
 
@@ -97,10 +104,11 @@ aws batch submit-job \
     --job-definition nextflow-production \
     --container-overrides command="fischbachlab/nf-ninjamap, \
 "--seedfile", "s3://genomics-workflow-core/Results/Ninjamap/20221018/seedfile2.csv", \
+"--project", "20221018"，\
 "--db","HCom2_20221117", \
 "--db_prefix", "HCom2", \
 "--db_path", "https://zenodo.org/record/7872423/files/hCom2_20221117.ninjaIndex.tar.gz", \
-"--output_path", "s3://genomics-workflow-core/Results/Ninjamap/HCom2/20221018", \
+"--output_path", "s3://genomics-workflow-core/Results/Ninjamap/HCom2", \
 "--sampleRate", "0.5" "
 ```
 ## Example 4: aws batch job parameters can also be configured using the -params-file option. A copy of the params will be automatically saved to a json file (parameters.json) in the run output bucket.

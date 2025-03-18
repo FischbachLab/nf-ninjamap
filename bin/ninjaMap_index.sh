@@ -179,6 +179,7 @@ bowtie2 \
     --no-discordant \
     --end-to-end \
     --no-unal \
+    --no-overlap \
     --un-conc-gz ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_R%.fastq.gz \
     -1 ${QC_FASTQ}/read1_trimmed.fastq.gz \
     -2 ${QC_FASTQ}/read2_trimmed.fastq.gz | \

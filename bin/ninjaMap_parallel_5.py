@@ -128,7 +128,9 @@ p.add_argument('-truth', dest='truth', action='store', default=False,
 p.add_argument('-mbq', dest='min_base_qual', action='store', default=20, type=int,
                 help='minimum read base quality to consider for coverage calculations.')
 p.add_argument('-coverage', dest='coverage', action='store_true', default=False,
-                help='output singular and escrow coverage and depth, by default abundace, overall coverage and depth only')
+                help='output singular and escrow coverage and depth, by default abundance, overall coverage and depth only')
+p.add_argument('-msv', dest='min_singular_vote', action='store', default=0,
+                help='minimum singular vote per strain present to consider for real abundance')
 p.add_argument('-version', action='version', version='NinjaMap version 1.0')
 
 args = vars(p.parse_args())
@@ -177,6 +179,8 @@ if args['min_base_qual']:
     min_base_qual = args['min_base_qual']
 else:
     min_base_qual = 20
+
+min_singular_vote = args['min_singular_vote']
 
 if args['debug']:
     true_strain = args['truth']
@@ -428,9 +432,18 @@ class Strains:
         self.adj_primary_wt = self.cum_primary_votes / self.db_weight
         return self.adj_primary_wt
 
+    # recalculate the total aligned reads if primary vote count <= threshold
+    def recalculate_total_reads_aligned(self):
+        if Reads.total_reads_aligned != 0:
+            if self.cum_primary_votes <= min_singular_vote:
+                Reads.total_reads_aligned = Reads.total_reads_aligned - self.cum_primary_votes
+
     def calculate_read_fraction(self):
         if Reads.total_reads_aligned != 0:
-            self.read_fraction = (self.cum_escrow_votes + self.cum_primary_votes) * 100 / Reads.total_reads_aligned
+            if self.cum_primary_votes <= min_singular_vote:
+                self.read_fraction = 0
+            else:
+                self.read_fraction = (self.cum_escrow_votes + self.cum_primary_votes) * 100 / Reads.total_reads_aligned
         else:
             self.read_fraction = 0
         return self.read_fraction
@@ -1052,6 +1065,11 @@ for res in result2:
             all_strain_obj[mystrain_name].total_covered_depth = mytotal_covered_depth
         if not (myweighted_base_depth is None):
             all_strain_obj[mystrain_name].weighted_base_depth = myweighted_base_depth
+
+# recalculate the total aligned reads if considering the minimum singular vote count
+if min_singular_vote > 0:
+    for name, strain in all_strain_obj.items():
+        strain.recalculate_total_reads_aligned()
 
 
 for name, strain in all_strain_obj.items():
