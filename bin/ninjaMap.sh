@@ -43,7 +43,7 @@ human="${human:-0}"
 mouse="${mouse:-0}"
 coverage="${coverage:-0}"
 debug="${debug:-0}"
-bedN="${bedN:-1000000}" # bedfile threshold 1M 
+bedN="${bedN:-100000}" # bedfile threshold 0.1M 
 # Inputs
 # S3OUTPUTPATH=s3://czbiohub-microbiome/Sunit_Jain/Synthetic_Community/ninjaMap/2019-05-16_StrainVerification/Dorea-longicatena-DSM-13814
 # fastq1=s3://czbiohub-microbiome/Original_Sequencing_Data/180727_A00111_0179_BH72VVDSXX/Alice_Cheng/Strain_Verification/Dorea-longicatena-DSM-13814_S275_R1_001.fastq.gz
