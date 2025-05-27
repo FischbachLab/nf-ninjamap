@@ -125,8 +125,8 @@ aws s3 cp --quiet ${fastq2} ${RAW_FASTQ}/read2.fastq.gz
 ##################################################################################################
 # check if there are duplicated headers in raw data
 ##################################################################################################
-# randomly sample 10k reads
-reformat.sh samplereadstarget=10000 sampleseed=123 fixheaders=t in=${RAW_FASTQ}/read1.fastq.gz  in2=${RAW_FASTQ}/read2.fastq.gz  out=${RAW_FASTQ}/sampled_10k_R1.fastq.gz out2=${RAW_FASTQ}/sampled_10k_R2.fastq.gz    
+# randomly sample 20k reads
+reformat.sh samplereadstarget=20000 sampleseed=123 fixheaders=t in=${RAW_FASTQ}/read1.fastq.gz  in2=${RAW_FASTQ}/read2.fastq.gz  out=${RAW_FASTQ}/sampled_10k_R1.fastq.gz out2=${RAW_FASTQ}/sampled_10k_R2.fastq.gz    
    
 header1_count=$(zcat ${RAW_FASTQ}/sampled_10k_R1.fastq.gz| awk 'NR%4==1 {print $0}' | wc -l)
 header2_count=$(zcat ${RAW_FASTQ}/sampled_10k_R1.fastq.gz | awk 'NR%4==1 {print $0}' | sort | uniq | wc -l)
@@ -220,11 +220,11 @@ bowtie2 \
     tee -a ${LOG_DIR}/read_mapping.log.txt
 
 # removed --no-discordant to eliminate discordant aligned pairs in the unmapped bin
-# skip the following step if there too many unmapped reads
+# skip the following step if there too many unmapped reads(950M) or too little reads (0.5M)
 
   if [ -e "${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz" ]; then 
-    file_size=$(du -m "${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz" | cut -f 1 )
-    if [ $file_size -gt 1 ] && [ $file_size -lt 750 ]; then
+    file_size=$(du -k "${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz" | cut -f 1 )
+    if [ $file_size -gt 500 ] && [ $file_size -lt 950000 ]; then
       echo "${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz exists. Removing the overlapped, discondant and containment pairs from the unmapped bin."
       bowtie2 \
           --very-sensitive \
