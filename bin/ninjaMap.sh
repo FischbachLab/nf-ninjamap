@@ -125,8 +125,8 @@ aws s3 cp --quiet ${fastq2} ${RAW_FASTQ}/read2.fastq.gz
 ##################################################################################################
 # check if there are duplicated headers in raw data
 ##################################################################################################
-# randomly sample 20k reads
-reformat.sh samplereadstarget=20000 sampleseed=123 fixheaders=t in=${RAW_FASTQ}/read1.fastq.gz  in2=${RAW_FASTQ}/read2.fastq.gz  out=${RAW_FASTQ}/sampled_10k_R1.fastq.gz out2=${RAW_FASTQ}/sampled_10k_R2.fastq.gz    
+# randomly sample 5% reads
+reformat.sh samplerate=0.05 sampleseed=123 fixheaders=t in=${RAW_FASTQ}/read1.fastq.gz  in2=${RAW_FASTQ}/read2.fastq.gz  out=${RAW_FASTQ}/sampled_10k_R1.fastq.gz out2=${RAW_FASTQ}/sampled_10k_R2.fastq.gz    
    
 header1_count=$(zcat ${RAW_FASTQ}/sampled_10k_R1.fastq.gz| awk 'NR%4==1 {print $0}' | wc -l)
 header2_count=$(zcat ${RAW_FASTQ}/sampled_10k_R1.fastq.gz | awk 'NR%4==1 {print $0}' | sort | uniq | wc -l)
