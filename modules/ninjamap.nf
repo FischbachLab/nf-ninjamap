@@ -31,7 +31,7 @@ process ninjaMap {
     export coverage="${params.coverage}"
     export REFDBNAME="${params.db_prefix}"
     export S3DBPATH="${params.db_path}/${params.db}/db/"
-    export S3OUTPUTPATH="${params.output_path}/${params.db_prefix}/${params.project}/${sample}"
+    export S3OUTPUTPATH="${params.output_path}/${params.db}/${params.project}/${sample}"
     export STRAIN_MAP_FILENAME="${params.db_prefix}.ninjaIndex.binmap.csv"
     export trimQuality="${params.minQuality}"
     export minLength="${params.minLength}"
