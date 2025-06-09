@@ -221,7 +221,9 @@ bowtie2 \
 
 # removed --no-discordant to eliminate discordant aligned pairs in the unmapped bin
 # skip the following step if there too many unmapped reads(950M) or too little reads (0.5M)
-
+# --no-mixed \ --no-unal \ --no-contain \  --un-conc-gz ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_R%.fastq.gz \
+# the 2nd alignment is no longer computed 
+:<<"COMM"
   if [ -e "${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz" ]; then 
     file_size=$(du -k "${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz" | cut -f 1 )
     if [ $file_size -gt 500 ] && [ $file_size -lt 950000 ]; then
@@ -234,18 +236,16 @@ bowtie2 \
           -x ${BOWTIE2_DB} \
           --no-mixed \
           --end-to-end \
-          --no-unal \
-          --un-conc-gz ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_R%.fastq.gz \
           --no-overlap \
-          --no-contain \
           -1 ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz \
           -2 ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R2.fastq.gz | \
         samtools view \
               -@ ${mycpu} \
               -bh \
-              -o ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_overlapped_mapped.bam -
+              -o ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_no_overlap.bam -
     fi 
   fi
+COMM
 # Original bowtie2 parameters
 # Removed: -f 3 \
 # Removed: -D 10 -R 2 -L 31 -i S,0,2.50 -N 0
