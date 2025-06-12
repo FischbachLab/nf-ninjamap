@@ -223,7 +223,7 @@ bowtie2 \
 # skip the following step if there too many unmapped reads(950M) or too little reads (0.5M)
 # --no-mixed \ --no-unal \ --no-contain \  --un-conc-gz ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_R%.fastq.gz \
 # the 2nd alignment is no longer computed 
-:<<"COMM"
+: <<'COMM2'
   if [ -e "${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz" ]; then 
     file_size=$(du -k "${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_include_overlap_R1.fastq.gz" | cut -f 1 )
     if [ $file_size -gt 500 ] && [ $file_size -lt 950000 ]; then
@@ -245,7 +245,7 @@ bowtie2 \
               -o ${BOWTIE2_OUTPUT}/${SAMPLE_NAME}_unmapped_no_overlap.bam -
     fi 
   fi
-COMM
+COMM2
 # Original bowtie2 parameters
 # Removed: -f 3 \
 # Removed: -D 10 -R 2 -L 31 -i S,0,2.50 -N 0

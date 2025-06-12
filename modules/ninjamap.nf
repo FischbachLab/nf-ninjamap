@@ -4,10 +4,10 @@
 process ninjaMap {
     tag "$sample"
     container  params.container
-    cpus { 32 * task.attempt }
-    memory { 250.GB * task.attempt }
+    cpus  32          // { 32 * task.attempt }
+    memory 250.GB     //{ 250.GB * task.attempt }
 
-    errorStrategy { task.exitStatus in 137..140 ? 'retry' : 'terminate' }
+    errorStrategy 'retry'  //{ task.exitStatus in 137..140 ? 'retry' : 'terminate' }
     maxRetries 2
 
     //publishDir "${params.output_path}/${params.db_prefix}/${params.project}", mode:'copy'
@@ -52,7 +52,7 @@ process ninjaMap {
     cpus { 2 * task.attempt }
     memory { 8.GB * task.attempt }
 
-    errorStrategy { task.exitStatus in 137..140 ? 'retry' : 'terminate' }
+    errorStrategy 'retry'   // { task.exitStatus in 137..140 ? 'retry' : 'terminate' }
     maxRetries 2
 
     publishDir "${params.output_path}/${params.db_prefix}/${params.project}", mode:'copy'
