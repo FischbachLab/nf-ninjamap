@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Automatically generate seedfile, parameter and batch files for DS samples for ninjaMap pipeline,
+"""Automatically generate seedfiles, parameters and batch files for DS samples for ninjaMap pipeline,
    then upload to s3 bucket
 USAGE: python create_DS_ninjamap_jobs.py --input DS_metadata.tsv --output_dir ./outfiles_dir --batch_name my_batch_file_name.sh
 
