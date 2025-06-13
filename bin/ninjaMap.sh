@@ -488,15 +488,17 @@ then
     #convert file .sam to .bam
     samtools view -bS "${QC_FASTQ}/Human_mapped_and_unmapped.sam" > "${QC_FASTQ}/Human_mapped_and_unmapped.bam"
     samtools flagstat "${QC_FASTQ}/Human_mapped_and_unmapped.bam" > "${LOG_DIR}/Human_contamination-stat.txt"
-    # SAMtools SAM-flag filter: get unmapped pairs (both reads R1 and R2 unmapped)
-    samtools view -b -f 12 -F 256 "${QC_FASTQ}/Human_mapped_and_unmapped.bam" > "${QC_FASTQ}/Human_bothReadsUnmapped.bam"
-    # sort bam file by read name (-n) to have paired reads next to each other
-    samtools sort -n -@ ${mycpu} "${QC_FASTQ}/Human_bothReadsUnmapped.bam" -o "${QC_FASTQ}/Human_bothReadsUnmapped_sorted.bam"
-    samtools fastq -@ ${mycpu} "${QC_FASTQ}/Human_bothReadsUnmapped_sorted.bam" \
-    -1 "${BOWTIE2_OUTPUT}/Human_host_removed.read1.fastq.gz" \
-    -2 "${BOWTIE2_OUTPUT}/Human_host_removed.read2.fastq.gz" \
-    -0 /dev/null -s /dev/null -n
 
+    ########################## no longer output filtered fastq ###############################
+    # SAMtools SAM-flag filter: get unmapped pairs (both reads R1 and R2 unmapped)
+    #samtools view -b -f 12 -F 256 "${QC_FASTQ}/Human_mapped_and_unmapped.bam" > "${QC_FASTQ}/Human_bothReadsUnmapped.bam"
+    # sort bam file by read name (-n) to have paired reads next to each other
+    #samtools sort -n -@ ${mycpu} "${QC_FASTQ}/Human_bothReadsUnmapped.bam" -o "${QC_FASTQ}/Human_bothReadsUnmapped_sorted.bam"
+    #samtools fastq -@ ${mycpu} "${QC_FASTQ}/Human_bothReadsUnmapped_sorted.bam" \
+    #-1 "${BOWTIE2_OUTPUT}/Human_host_removed.read1.fastq.gz" \
+    #-2 "${BOWTIE2_OUTPUT}/Human_host_removed.read2.fastq.gz" \
+    #-0 /dev/null -s /dev/null -n
+    ##########################################################################################
     #echo "SAMPLE_NAME,Host_Contaminant,Total_mapped_reads,Mapped_rate(%),Total_mapped_paired_reads,Mapped_Paired_rate(%)" >> ${LOG_DIR}/Host_Contaminants_stats.csv
 
     LINE="${SAMPLE_NAME},Human,"
@@ -524,15 +526,18 @@ then
   #convert file .sam to .bam
   samtools view -bS "${QC_FASTQ}/Mouse_mapped_and_unmapped.sam" > "${QC_FASTQ}/Mouse_mapped_and_unmapped.bam"
   samtools flagstat "${QC_FASTQ}/Mouse_mapped_and_unmapped.bam" > "${LOG_DIR}/Mouse_contamination-stat.txt"
-  # SAMtools SAM-flag filter: get unmapped pairs (both reads R1 and R2 unmapped)
-  samtools view -b -f 12 -F 256 "${QC_FASTQ}/Mouse_mapped_and_unmapped.bam" > "${QC_FASTQ}/Mouse_bothReadsUnmapped.bam"
-  # sort bam file by read name (-n) to have paired reads next to each other
-  samtools sort -n -@ ${mycpu} "${QC_FASTQ}/Mouse_bothReadsUnmapped.bam" -o "${QC_FASTQ}/Mouse_bothReadsUnmapped_sorted.bam"
-  samtools fastq -@ ${mycpu} "${QC_FASTQ}/Mouse_bothReadsUnmapped_sorted.bam" \
-  -1 "${BOWTIE2_OUTPUT}/Mouse_host_removed.read1.fastq.gz" \
-  -2 "${BOWTIE2_OUTPUT}/Mouse_host_removed.read2.fastq.gz" \
-  -0 /dev/null -s /dev/null -n
 
+  ########################## no longer output filtered fastq ###############################
+  # SAMtools SAM-flag filter: get unmapped pairs (both reads R1 and R2 unmapped)
+  #samtools view -b -f 12 -F 256 "${QC_FASTQ}/Mouse_mapped_and_unmapped.bam" > "${QC_FASTQ}/Mouse_bothReadsUnmapped.bam"
+  # sort bam file by read name (-n) to have paired reads next to each other
+  #samtools sort -n -@ ${mycpu} "${QC_FASTQ}/Mouse_bothReadsUnmapped.bam" -o "${QC_FASTQ}/Mouse_bothReadsUnmapped_sorted.bam"
+  #samtools fastq -@ ${mycpu} "${QC_FASTQ}/Mouse_bothReadsUnmapped_sorted.bam" \
+  #-1 "${BOWTIE2_OUTPUT}/Mouse_host_removed.read1.fastq.gz" \
+  #-2 "${BOWTIE2_OUTPUT}/Mouse_host_removed.read2.fastq.gz" \
+  #-0 /dev/null -s /dev/null -n
+  ##########################################################################################
+ 
   LINE="${SAMPLE_NAME},Mouse,"
   mapped_reads=`grep "mapped ("  "${LOG_DIR}/Mouse_contamination-stat.txt" | cut -d " " -f 1`
   mapped_rate=`grep "mapped ("  "${LOG_DIR}/Mouse_contamination-stat.txt" | cut -d "%" -f 1 | cut -d"(" -f 2`
