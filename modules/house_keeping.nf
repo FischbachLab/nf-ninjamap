@@ -7,7 +7,7 @@ import groovy.json.JsonOutput
 process printParams {
     tag  params.project
     container  params.container
-    publishDir "${params.output_path}/${params.db_prefix}/${params.project}/pipeline_info"
+    publishDir "${params.output_path}/${params.db}/${params.project}/pipeline_info"
 
     errorStrategy = 'ignore'
 
@@ -28,7 +28,7 @@ process get_software_versions {
     tag  params.project
     container  params.container
     errorStrategy 'ignore'
-    publishDir "${params.output_path}/${params.db_prefix}/${params.project}/pipeline_info"
+    publishDir "${params.output_path}/${params.db}/${params.project}/pipeline_info"
     //saveAs: {filename ->
     //    if (filename.indexOf(".csv") > 0) filename
     //    else null
