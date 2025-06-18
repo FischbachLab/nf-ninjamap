@@ -55,7 +55,7 @@ process ninjaMap {
     errorStrategy 'retry'   // { task.exitStatus in 137..140 ? 'retry' : 'terminate' }
     maxRetries 2
 
-    publishDir "${params.output_path}/${params.db_prefix}/${params.project}", mode:'copy'
+    publishDir "${params.output_path}/${params.db}/${params.project}", mode:'copy'
 
     input:
       path "ninjamap_abundance_list/*"
@@ -68,6 +68,6 @@ process ninjaMap {
 
     script:
     """
-    aggregate_ninjamap_results.R  '${params.output_path}' ${params.db_prefix} ${params.project}
+    aggregate_ninjamap_results.R  '${params.output_path}' ${params.db} ${params.project}
     """
  }
