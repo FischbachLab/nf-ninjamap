@@ -27,7 +27,16 @@ Aggregated Output files
 5. **\*.reads_stats.csv**: this file shows the reads statistics in read numbers by samples. (Reads_wPerfect_Aln (Col.G) / Reads_Aligned(Col.F) is equal to the sum of all abundance numbers for a sample in readFraction.)
 6. **\*.readFraction.csv**: this file shows the relative abundance in the defined community in percentage by samples. (The relative abundance is denoted by the fraction of the total QCed filtered reads in a sample that aligned perfectly to at least one strain in the database. Since that almost never happens, the fractions don’t sum to 100%.)
 
-### The ninjaMap read fate definitions in waffle plot.
+### The aggregated plots
+
+1. **brian_plot.basic.pdf**: the comparison of the relative abundance by strains across all samples (originally designed for time series)
+2. **fragment_stats.pdf**: the summarized read fates for all samples are shown in the boxplot.
+3. **fragment_stats.post_qc.pdf**: the summarized read fates after QC for all samples are shown in the boxplot.
+4. **Host_Contamination_stats.pdf**: the human or mouse contaminantion in percentage by samples.
+5. **read_fates.waffle_plot.png**: the summarized read fates, expressed as the median across all samples, are shown in the waffle plot.
+6. **\*.waffle_plot.png**: the detailed read fates for each sample by samples are shown in the waffle plot.
+
+### The ninjaMap read fate definitions in the waffle plot.
 
 1. **Primary**: reads that align to a single reference within the queried database
 2. **Escrow**: reads that align to multiple references within the queried database. Escrow reads are divided based on the Primary read fraction of the relevant references.
