@@ -1,0 +1,89 @@
+---
+title: "MITI-001 ninjaMap Figure Notebook"
+output: a scatterplot plot based on the input abundance table
+date: "2025-09-19"
+---
+
+```{r setup, include=FALSE}
+library(scales)
+library(mdthemes)
+library("readxl")
+
+# Define custom colors
+phylum_colors <- c(
+  # updated GTDB taxonomies
+ "Actinomycetota" = "darkorange",      
+ "Bacillota"  = "darkred",   # Red
+ "Bacillota_A"  = "darkred",   # Red
+ "Bacillota_C" = "darkred",   # Red
+ "Bacteroidota" = "darkgreen",  # Green
+ "Desulfo-bacterota" = "yellow3", 
+ "Pseudo-monadota" = "darkblue",
+ "Verruco-microbiota" = "purple",
+
+ # legacy taxonomies
+  "Actinobacteria" = "#00BFC4",      # Teal
+  "Bacteroides" = "#7CAE00",         # Green
+  "Firmicutes" = "#F8766D",          # Red
+  "Proteobacteria" = "#00A9FF",      # Blue
+  "Verrucomicrobiota" = "#C77CFF"    # Purple
+)
+
+```
+
+```{r}
+
+df = read_excel("~/Stanford/maf-nextflow/nf-ninjamap/scripts/abundance_plot/MITI-ninjaMap-table.xlsx", sheet = "Sheet2") 
+
+print(df)
+df$Phylum <- factor(df$Phylum)
+#df <- df[!is.na(df$Phylum), ]
+
+# change to the long format
+df <- gather(df, key="sample_id", value="Read_Fraction", 3:ncol(df), factor_key=TRUE)
+df$Read_Fraction[is.na(df$Read_Fraction)] <- 0
+df <- df[df$Read_Fraction > 0.0000001, ]
+
+summary(df)
+
+  df %>%
+    ungroup() %>%
+    mutate(sample_id = str_replace_all(sample_id, "-", " "),
+           abundance = Read_Fraction/100,
+           phylum = Phylum
+           ) %>%
+    
+  # define the x-axis order
+  mutate(group1 = factor(sample_id, levels = c("Inoculum",	"20250819_x261c_cecal_H06",	"20250819_x261e_cecal_B07",	"20250819_x261f_cecal_C07",	"20250819_x261g_cecal_D07",	"20250819_x261b_cecal_G06",	"20250819_x261a_cecal_F06"))) %>% 
+  
+  ggplot(aes(group1, abundance, color = phylum))+
+   
+  scale_color_manual(values = phylum_colors) + 
+  geom_jitter( width = 0.2, height = 0, size = 4) +
+    
+  # Don't use geom_point with geom_gitter
+  #geom_point(size = 3, alpha = 0.8, show.legend =TRUE)+
+
+  geom_line(aes(group=Strain_Name),size = 0.3, alpha = 0.3, show.legend = FALSE)+
+   
+  scale_y_continuous(
+  trans = "log10",
+  limits = c(1, 1e-7),  # From 10^0 (top) to 10^-7 (bottom)
+  breaks = 10^seq(0, -7, by = -1),
+  labels = trans_format("log10", math_format(10^.x))
+  ) +
+  
+  xlab("Sample")+
+  ylab("Relative abundance")+
+  ggtitle("Strain abundance comparion by ninjaMap")+
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 10),
+    axis.text.y = element_text(size = 15),
+    text = element_text(size = 15)
+  )
+ 
+ ggsave("~/Stanford/maf-nextflow/nf-ninjamap/scripts/abundance_plot/figures/MITI-001-BileAcids_ninjaMap.svg", height = 14, width = 16, units = "in", dpi = "retina")
+
+```
+
