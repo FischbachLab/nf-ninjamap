@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Automatically generate seedfiles, parameters and batch files for DS samples for ninjaMap pipeline,
+"""Automatically generate seedfile, parameter and batch files for DS samples for ninjaMap pipeline,
    then upload to s3 bucket
 USAGE: python create_DS_ninjamap_jobs.py --input DS_metadata.tsv --output_dir ./outfiles_dir --batch_name my_batch_file_name.sh
 
@@ -152,7 +152,7 @@ def create_seedfile(sample_name, R1, R2, DB, project, s3_output_path, batch_file
     s3_output_path= s3_output_path.rstrip("/")  # Removes trailing slash if present
     print(s3_output_path)  
 
-    seedfile = f"{project}.seedfile.csv"
+    seedfile = f"{project}_{sample_name}.seedfile.csv"
     path_list = s3_output_path.replace("s3://", "").split("/")
     bucket = path_list.pop(0)
     s3_key = "/".join(path_list)
@@ -171,12 +171,12 @@ def create_seedfile(sample_name, R1, R2, DB, project, s3_output_path, batch_file
 
     seedfile_s3_path = upload_to_s3(f"{out_dir}/DS_seedfiles/{seedfile}", f"{s3_key}/seedfiles/{seedfile}", bucket)
     #print (f"{seedfile_s3_path}")
-    parameter_s3_path = create_parameter_file(s3_output_path, seedfile_s3_path, DB, project, out_dir)
+    parameter_s3_path = create_parameter_file(s3_output_path, seedfile_s3_path, sample_name, DB, project, out_dir)
     #print (f"{parameter_s3_path}")
     create_batch_file(parameter_s3_path, project, out_dir, batch_file_name)
     
 
-def create_parameter_file(s3_output_path, seedfile_file_path, db_name, project, out_dir):
+def create_parameter_file(s3_output_path, seedfile_file_path, sample_name, db_name, project, out_dir):
 
     parameter_df = pd.DataFrame(
             {
@@ -207,7 +207,7 @@ def create_parameter_file(s3_output_path, seedfile_file_path, db_name, project, 
     #json_pretty = json.dumps(json.loads(json_file), indent=4, ensure_ascii=False)
 
     # parameter file name
-    parameterfile = f"{project}.parameters.json"
+    parameterfile = f"{project}_{sample_name}.parameters.json"
     s3_path_list = s3_output_path.replace("s3://", "").split("/")
     bucket = s3_path_list.pop(0)
     s3_key = "/".join(s3_path_list)

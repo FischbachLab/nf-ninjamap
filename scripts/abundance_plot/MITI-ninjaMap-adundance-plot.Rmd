@@ -33,7 +33,7 @@ phylum_colors <- c(
 
 ```{r}
 
-df = read_excel("~/Stanford/maf-nextflow/nf-ninjamap/scripts/abundance_plot/MITI-ninjaMap-table.xlsx", sheet = "Sheet2") 
+df = read_excel("nf-ninjamap/scripts/abundance_plot/data/MITI-ninjaMap-table.xlsx", sheet = "Sheet2") 
 
 print(df)
 df$Phylum <- factor(df$Phylum)
@@ -83,7 +83,7 @@ summary(df)
     text = element_text(size = 15)
   )
  
- ggsave("~/Stanford/maf-nextflow/nf-ninjamap/scripts/abundance_plot/figures/MITI-001-BileAcids_ninjaMap.svg", height = 14, width = 16, units = "in", dpi = "retina")
+ ggsave("nf-ninjamap/scripts/abundance_plot/figures/MITI-001-BileAcids_ninjaMap.svg", height = 14, width = 16, units = "in", dpi = "retina")
 
 ```
 
