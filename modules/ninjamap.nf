@@ -4,8 +4,8 @@
 process ninjaMap {
     tag "$sample"
     container  params.container
-    cpus  32          // { 32 * task.attempt }
-    memory 250.GB     //{ 250.GB * task.attempt }
+    cpus  32         //48 { 32 * task.attempt }
+    memory 250.GB  // 250.GB     // 380 { 250.GB * task.attempt }
 
     errorStrategy 'retry'  //{ task.exitStatus in 137..140 ? 'retry' : 'terminate' }
     maxRetries 2
@@ -37,6 +37,8 @@ process ninjaMap {
     export minLength="${params.minLength}"
     export debug="${params.debug}"
     export ref_db="${params.ref_db_path}"
+    export singular_vote="${params.min_singular_vote}"
+    export mask_bed="${params.mask}"
     ninjaMap.sh
     """
 }

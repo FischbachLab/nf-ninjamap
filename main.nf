@@ -29,8 +29,10 @@ def helpMessage() {
       --coverage      num   Outputting singular & escrow coverage and depth (0 or 1, default 0)
       --minQuality    num   Regions with average quality BELOW this will be trimmed
       --minLength     num   Reads shorter than this after trimming will be discarded
-      --debug         num   enable debug mode to generate singular bam files (0 or 1, default 0)
-      -profile        docker  run locally
+      --min_singular_vote num   Minimum singular vote per strain
+      --debug         num   Enable debug mode to generate singular bam files (0 or 1, default 0)
+      --mask          file  Masked genome regions excluding for alingments in bed format
+      -profile        docker  Run locally
 
 
 

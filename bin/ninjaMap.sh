@@ -44,6 +44,7 @@ mouse="${mouse:-0}"
 coverage="${coverage:-0}"
 debug="${debug:-0}"
 bedN="${bedN:-100000}" # bedfile threshold 0.1M 
+
 # Inputs
 # S3OUTPUTPATH=s3://czbiohub-microbiome/Sunit_Jain/Synthetic_Community/ninjaMap/2019-05-16_StrainVerification/Dorea-longicatena-DSM-13814
 # fastq1=s3://czbiohub-microbiome/Original_Sequencing_Data/180727_A00111_0179_BH72VVDSXX/Alice_Cheng/Strain_Verification/Dorea-longicatena-DSM-13814_S275_R1_001.fastq.gz
@@ -273,6 +274,25 @@ samtools sort \
 # samtools sort -@ ${coreN} -o ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam ${TMP_OUTPUTS}/${SAMPLE_NAME}.bam
 samtools index -@ ${coreN} ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam
 
+# Exclude Reads Overlapping BED Regions
+if aws s3 cp ${mask_bed} ${BOWTIE2_OUTPUT}/excluded_regions.bed; then
+  echo "Downloaded the genome mask file succeeded."
+  bed_option="-bed ${BOWTIE2_OUTPUT}/excluded_regions.bed"
+else
+  bed_option=""
+:<<"COMM1"
+  if [ -s ${BOWTIE2_OUTPUT}/excluded_regions.bed ]; then
+      bedtools intersect -abam  ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam -b ${BOWTIE2_OUTPUT}/excluded_regions.bed -v > filtered.bam
+      samtools sort filtered.bam -@ ${coreN} -T ${OUTPUTDIR} -o ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.masked.bam
+      samtools index -@ ${coreN} ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.masked.bam
+      mv ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}_unmasked.bam
+      mv ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam.bai ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}_unmasked.bam.bai
+      mv ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.masked.bam ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam
+      mv ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.masked.bam.bai ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam.bai
+  fi
+COMM1
+fi
+
 # rmove unsorted bam file to save space
 rm ${TMP_OUTPUTS}/${SAMPLE_NAME}.bam
 # 3328 =
@@ -301,11 +321,13 @@ fi
 
 # make sure the number of aligned reads > 1
 if [ $all_mapped_reads -gt 1 ]; then
-ninjaMap_parallel_5.py \
+ninjaMap_parallel.py \
     -bam ${BOWTIE2_OUTPUT}/${OUTPUT_PREFIX}.bam \
     -bin ${referenceNameFile} \
     -outdir ${NINJA_OUTPUT} \
     ${cov_option} \
+    ${bed_option} \
+    -msv ${singular_vote} \
     -prefix ${SAMPLE_NAME} |\
     tee -a ${LOG_DIR}/${SAMPLE_NAME}.ninjaMap.log.txt
 else
