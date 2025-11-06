@@ -66,7 +66,7 @@ aws batch submit-job \
   --job-definition nextflow-production \
   --container-overrides command="fischbachlab/nf-ninjamap, \
 "--seedfile", "s3://genomics-workflow-core/Results/ninjamap/example_seedfile.csv", \
-"--project", "biohub"，\
+"--project", "biohub", \
 "--db","SCv2_4_20210212", \
 "--db_prefix", "SCv2_4", \
 "--db_path", "s3://maf-versioned/ninjamap/Index", \
@@ -81,7 +81,7 @@ aws batch submit-job \
     --job-definition nextflow-production \
     --container-overrides command="fischbachlab/nf-ninjamap, \
 "--seedfile", "s3://genomics-workflow-core/Results/Ninjamap/project/example.seedfile.csv", \
-"--project", "new_project"，\
+"--project", "new_project", \
 "--db","HCom2_20221117", \
 "--db_prefix", "HCom2", \
 "--db_path", "s3://maf-versioned/ninjamap/Index", \
@@ -104,7 +104,7 @@ aws batch submit-job \
     --job-definition nextflow-production \
     --container-overrides command="fischbachlab/nf-ninjamap, \
 "--seedfile", "s3://genomics-workflow-core/Results/Ninjamap/20221018/seedfile2.csv", \
-"--project", "20221018"，\
+"--project", "20221018", \
 "--db","HCom2_20221117", \
 "--db_prefix", "HCom2", \
 "--db_path", "https://zenodo.org/record/7872423/files/hCom2_20221117.ninjaIndex.tar.gz", \
