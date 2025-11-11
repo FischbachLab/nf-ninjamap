@@ -217,7 +217,7 @@ ggplot()+
 host_contamination_stats %>%
 ggplot()+
       geom_col(aes(sample_id, Mapped_Paired_rate, fill=Host_Contaminant), position="dodge") +
-  labs(title="Host Contamination Detection- Sample Mapping Rate(Filtered Reads)", x="Samples", y= "Contamination Percentage")+
+  labs(title="Host Contamination Detection- Sample Mapping Rate(Filtered Reads)", x="Samples", y= "Contamination Rate")+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) 
 
 ggsave(paste(study_figures_path,"Host_Contamination_stats.pdf", sep="/"), height = 8, width = 12, units = "in",dpi = "retina")   
