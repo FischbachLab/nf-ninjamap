@@ -16,7 +16,7 @@ process ninjaMap {
     tuple val(sample), val(reads1), val(reads2)
 
     output:
-    path "tmp_*/Sync/ninjaMap/${sample}.ninjaMap.abundance.csv"   //, emit: abund_ch
+    path "tmp_*/Sync/ninjaMap/${sample}.ninjaMap.abundance.csv", optional: true   //, emit: abund_ch
     //path "tmp_*/Sync/ninjaMap/${sample}.ninjaMap.read_stats.csv", emit: stats_ch
     //path "tmp_*/Sync/Logs/${sample}_Contaminants_stats.csv", emit: contam_ch
     //path "tmp_*/Sync/Stats/read_accounting.csv", emit: read_ch

@@ -117,8 +117,8 @@ foreach(sample_name=unique(strain_read_stats$sample_id)) %do% {
   p = NULL
   print(sample_name)
   # exclude specific samples
-  if (sample_name != "PCR-control-1_S28" && sample_name != "PCR-control-2_S32") {
-   
+  #if (sample_name != "PCR-control-1_S28" && sample_name != "PCR-control-2_S32") {
+   if (!grepl("negctrl|control", sample_name, ignore.case = TRUE)) {
     p = strain_read_stats %>%
       filter(sample_id == sample_name) %>%
       process_fragment_stats() %>%
