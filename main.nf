@@ -3,8 +3,10 @@ import groovy.json.JsonOutput
 
 nextflow.enable.dsl=2
 
-include { ninjaMap; aggregate_ninjaMap;} from './modules/ninjamap'
-include { printParams; get_software_versions; } from './modules/house_keeping'
+include { printParams; get_software_versions } from './modules/house_keeping'
+include { read_qc; bowtie2_alignment } from './modules/pre_processing'
+include { ninjaMap_abundance; ninjaMap_coverage_general; ninjaMap_merge_abundance_table } from './modules/ninjaMap'
+include { ninjaMap_contam; ninjaMap_coverage_debug; ninjaMap_coverage; ninjaMap_debug; aggregate_ninjaMap; ninjaMap_complete } from './modules/post_processing'
 
 // If the user uses the --help flag, print the help text below
 params.help = false
@@ -20,7 +22,6 @@ def helpMessage() {
       --db_prefix     db_prefix NinjaMap database prefix
       --db_path       db_path   NinjaMap database path
       --output_path   path      Output s3 path
-      --project       project_name  a project name
 
     Options:
       --sampleRate    num   Sampling rate (0-1)
@@ -29,10 +30,8 @@ def helpMessage() {
       --coverage      num   Outputting singular & escrow coverage and depth (0 or 1, default 0)
       --minQuality    num   Regions with average quality BELOW this will be trimmed
       --minLength     num   Reads shorter than this after trimming will be discarded
-      --min_singular_vote num   Minimum singular vote per strain
-      --debug         num   Enable debug mode to generate singular bam files (0 or 1, default 0)
-      --mask          file  Masked genome regions excluding for alingments in bed format
-      -profile        docker  Run locally
+      --debug         num   enable debug mode to generate singular bam files (0 or 1, default 0)
+      -profile        docker  run locally
 
 
 
@@ -56,7 +55,7 @@ if (params.db == "null") {
 }
 
 if (params.db_prefix == "null") {
-	exit 1, "Missing the a database prefix"
+	exit 1, "Missing the database prefix"
 }
 
 // coverage must be enabled if enabling the debug mode
@@ -69,21 +68,67 @@ if (params.debug && !params.coverage ) {
  * Each of the following parameters can be specified as command line options
  */
 
-//def output_path = "${params.output_path}"
-//def output_path=s3://genomics-workflow-core/Pipeline_Results/NinjaMap/${params.output_prefix}"
+def output_path = "${params.output_path}"
 
 
-Channel
- .fromPath(params.seedfile)
- .ifEmpty { exit 1, "Cannot find any seed file matching: ${params.seedfile}." }
- .splitCsv(header: ['sample', 'reads1', 'reads2'], sep: ',', skip: 1)
- .map{ row -> tuple(row.sample, row.reads1, row.reads2)}
- .set { seedfile_ch }
+seedfile_ch  = Channel
+    .fromPath(params.seedfile)
+    .ifEmpty { exit 1, "Cannot find any seed file matching: ${params.seedfile}." }
+    .splitCsv(header: ['sampleName', 'R1', 'R2'], sep: ',', skip: 1)
+    .map{ row -> tuple(row.sampleName, row.R1, row.R2)}
+   // .filter { sampleName, R1, R2 -> !sampleName.toLowerCase().contains("negctrl") }
+
+db_ch = Channel
+      .fromPath("${params.db_path}/${params.db}/db/bowtie2_index/*")
+      .ifEmpty { exit 1, "Cannot find the ninjaMap DB index files: ${params.db}" }
+ 
+fna_ch = Channel
+      .fromPath("${params.db_path}/${params.db}/db/*.fna")
+      .ifEmpty { exit 1, "Cannot find the ninjaMap DB geneome file: ${params.db}" }
+
+binmap_ch = Channel
+      .fromPath("${params.db_path}/${params.db}/db/*.ninjaIndex.binmap.csv")
+      .ifEmpty { exit 1, "Cannot find the ninjaMap DB binmap file: ${params.db}" }
+  
 
 workflow {
+
   printParams()
   get_software_versions()
-  seedfile_ch |  ninjaMap
-  aggregate_ninjaMap(ninjaMap.out.toSortedList())
-  //aggregate_ninjaMap(ninjaMap.out.abund_ch.concat( ninjaMap.out.stats_ch, ninjaMap.out.contam_ch, ninjaMap.out.read_ch ).toSortedList())
+
+  seedfile_ch | read_qc 
+  
+  bowtie2_alignment(db_ch.toSortedList(), read_qc.out.qc_fastq_ch.join(seedfile_ch, by: 0))
+
+  // debugging: print the channel
+  //bowtie2_alignment.out.bam_ch.view { sample, bam, bai ->
+  //  "Sample: $sample | bam: $bam  | bai: $bai"
+ // }
+  ninjaMap_abundance(bowtie2_alignment.out.bam_ch, binmap_ch.collect())
+  ninjaMap_coverage_general(bowtie2_alignment.out.bam_ch, fna_ch.collect())
+  ninjaMap_merge_abundance_table(ninjaMap_abundance.out.abundance.join(ninjaMap_coverage_general.out.coverage, by: 0))
+
+  ninjaMap_contam(read_qc.out.qc_fastq_ch.join(bowtie2_alignment.out.bam_ch, by: 0))
+
+  if(params.coverage){
+    ninjaMap_coverage(ninjaMap_abundance.out.abundance_coverage.join(ninjaMap_merge_abundance_table.out.abundance, by: 0), fna_ch.collect())
+    if(params.debug){
+      ninjaMap_debug(ninjaMap_abundance.out.abundance_coverage.join(ninjaMap_merge_abundance_table.out.abundance, by: 0), fna_ch.collect())
+    }
+    //ninjaMap_coverage_debug(ninjaMap_abundance.out.abundance_coverage.join(ninjaMap_merge_abundance_table.out.abundance, by: 0), fna_ch.collect())
+    ninjaMap_complete(ninjaMap_coverage.out.abundance)
+  }else{
+    ninjaMap_complete(ninjaMap_merge_abundance_table.out.abundance)
+  }
+
+  aggregate_ninjaMap(ninjaMap_complete.out.txt.toSortedList())
 }
+
+
+ workflow.onComplete {
+     println "Pipeline completed!"
+     println "Started at  $workflow.start"
+     println "Finished at $workflow.complete"
+     println "Time elapsed: $workflow.duration"
+     println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
+ }

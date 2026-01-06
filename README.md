@@ -80,7 +80,6 @@ aws batch submit-job \
     --job-queue priority-maf-pipelines \
     --job-definition nextflow-production \
     --container-overrides command="fischbachlab/nf-ninjamap, \
-"-r","dev", \
 "--seedfile", "s3://genomics-workflow-core/Results/Ninjamap/project/example.seedfile.csv", \
 "--project", "new_project", \
 "--db","HCom2_20221117", \
@@ -104,7 +103,6 @@ aws batch submit-job \
     --job-queue priority-maf-pipelines \
     --job-definition nextflow-production \
     --container-overrides command="fischbachlab/nf-ninjamap, \
-"-r","dev",\
 "--seedfile", "s3://genomics-workflow-core/Results/Ninjamap/20221018/seedfile2.csv", \
 "--project", "20221018", \
 "--db","HCom2_20221117", \
@@ -113,14 +111,14 @@ aws batch submit-job \
 "--output_path", "s3://genomics-workflow-core/Results/Ninjamap/HCom2", \
 "--sampleRate", "0.5" "
 ```
-## Example 4: aws batch job parameters can also be configured using the -params-file option. A copy of the params will be automatically saved to a json file (parameters.json) in the run output bucket.
+## Example 4: aws batch job parameters can also be configured with the **-params-file** option using the **development version**. A copy of the params will be automatically saved to a json file (parameters.json) in the output bucket.
 ```{bash}
 aws batch submit-job \
     --job-name nf-ninjamap-MITI \
     --job-queue priority-maf-pipelines \
     --job-definition nextflow-production \
-    "-r","dev",\
     --container-overrides command="fischbachlab/nf-ninjamap, \
+    "-r", "dev", \
     "-params-file", "s3://genomics-workflow-core/Results/Ninjamap/parameters/example_parameters.json" " 
 ```
 ### A debug option is added to the ninjamap pipeline. The debug and coverage must be set to 1 at the same time. After enabling this debug option, it will output two sets of bam files in two folders ninjaMap/debug/singular and ninjaMap/debug/escrow, respectively. Note that the run time might be doubled if using the debug option.

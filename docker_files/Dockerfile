@@ -1,38 +1,24 @@
-# Setup base image
-FROM continuumio/miniconda3:latest
+# Use an official Python image as a parent image.
+# python:3.10-slim-bullseye is a great choice: it's smaller and based on Debian "Bullseye".
+FROM python:3.10-slim-bullseye
 
-USER root:root
-ENV PATH "/opt/conda/bin:$PATH"
+# Avoid interactive prompts during installation
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies
-RUN apt-get update --allow-releaseinfo-change  && apt-get install -y libtbb2
+# Install all required dependencies in a single layer for a smaller image
+# Includes: git, ca-certificates (for downloading), bedtools, samtools, bc, and gnu-parallel
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
+    git \
+    bedtools \
+    samtools \
+    bc \
+    parallel && \
+    rm -rf /var/lib/apt/lists/*
 
-# Update conda to latest version.
-RUN conda update -n base -c defaults conda
+# Set a working directory
+WORKDIR /app
 
-# channel order is important
-RUN conda install --freeze-installed -c bioconda -c conda-forge -y nomkl numpy pandas \
-       awscli biopython \
-       bowtie2 bedtools vcftools samtools==1.11 sambamba pysam pysamstats pybedtools bbmap \
-       && conda clean -afy
-
-RUN conda install --freeze-installed -c conda-forge bc
-# && conda install -c jrmadsen -y timemory \
-# Use connection.py from python version 3.8
-COPY connection_py38.py /opt/conda/lib/python3.7/multiprocessing/connection.py
-
-RUN mkdir -p /work
-WORKDIR /work
-
-# Get Repo
-COPY . .
-
-# Metadata
-LABEL container.maintainer="Xian Meng" \
-      container.base.image="continuumio/miniconda3:4.8.2" \
-      software.name="ninjaMap" \
-      software.description="Strain abundance pipeline" \
-      software.website="https://github.com/FischbachLab/ninjaMap" \
-      container.category="aligner"
-
-RUN chmod -R +rx ./
+# This makes the container executable by default, dropping into a shell
+CMD ["/bin/bash"]
