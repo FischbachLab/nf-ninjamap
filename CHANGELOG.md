@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 
 
+## [2.0.0] - 2026-01-06
+
+### Added
+ -v2.0.0 A bed option to mask the specific genomes while calculating the abundance
+
+### Changed
+ -v2.0.0 A complete restructure of ninjaMap workflow
+
+
 ## [1.1.0] - 2025-03-18
 
 ### Added
