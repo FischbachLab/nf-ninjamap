@@ -1,11 +1,15 @@
-ninjaMap - Calculate strain abundance in a defined community
+<h1 align="center">ninjaMap - Calculate strain abundance in a defined community</h1>
 ====================
 
-The simple scripts shows how to run ninjamap jobs under the Nextflow framework.
+<h2 align="center">NinjaMap pipeline 2.0 - a complete restructure of the ninjaMap workflow</h2>
+====================
+
 
 ## [ninjaMap workflow](workflow.md) 
 
 ## [Run ninjaMap on premise servers](local/README.md)
+
+The sample scripts shows how to run ninjamap jobs under the Nextflow framework.
 
 ## Command line example for a single sample for files stored in an S3 bucket on a premise server
 ```{bash}
@@ -31,18 +35,18 @@ data/read1.fastq.gz
 data/read2.fastq.gz
 ```
 
-## An example of ninjaMap Index (HCom2) is available at
+## An example of ninjaMap database (HCom2) is available at
 ```{bash}
 https://zenodo.org/record/7872423/files/hCom2_20221117.ninjaIndex.tar.gz
 ```
 
-## Run a ninjaMap docker container with a sorted BAM file (a sample aligned to the concatenated reference) and an HCom2 binmap file
+## Run a ninjaMap docker container with a sorted BAM file (a sample aligned to the concatenated reference) and the HCom2 binmap file
 ```{bash}
 docker container run \
     -v /host/path/to/indata/:/input_data/ \
     -v /host/path/to/outdata/:/output_data/ \
     fischbachlab/nf-ninjamap \
-    python /work/scripts/ninjaMap_parallel_5.py \
+    python /work/scripts/ninjaMap_parallel.py \
     -bin /input_data/db/HCom2.ninjaIndex.binmap.csv \
     -bam /input_data/bam/sample.sortedByCoord.bam \
     -outdir /output_data/summary \
