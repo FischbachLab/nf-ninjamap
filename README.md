@@ -1,15 +1,12 @@
 <h1 align="center">ninjaMap - Calculate strain abundance in a defined community</h1>
-====================
 
 <h2 align="center">NinjaMap pipeline 2.0 - a complete restructure of the ninjaMap workflow</h2>
-====================
-
 
 ## [ninjaMap workflow](workflow.md) 
 
 ## [Run ninjaMap on premise servers](local/README.md)
 
-The sample scripts shows how to run ninjamap jobs under the Nextflow framework.
+The sample scripts show how to run ninjamap jobs under the Nextflow framework.
 
 ## Command line example for a single sample for files stored in an S3 bucket on a premise server
 ```{bash}
@@ -115,13 +112,14 @@ aws batch submit-job \
 "--output_path", "s3://genomics-workflow-core/Results/Ninjamap/HCom2", \
 "--sampleRate", "0.5" "
 ```
-## Example 4: aws batch job parameters can also be configured with the **-params-file** option using the **development version**. A copy of the params will be automatically saved to a json file (parameters.json) in the output bucket.
+## Example 4: aws batch job parameters can also be configured with the -params-file option using the development version. A copy of the params will be automatically saved to a json file (parameters.json) in the output bucket.
 ```{bash}
 aws batch submit-job \
     --job-name nf-ninjamap-MITI \
     --job-queue priority-maf-pipelines \
     --job-definition nextflow-production \
     --container-overrides command="fischbachlab/nf-ninjamap, \
+    # *** IMPORTANT: add this line to enable the dev version ***
     "-r", "dev", \
     "-params-file", "s3://genomics-workflow-core/Results/Ninjamap/parameters/example_parameters.json" " 
 ```
