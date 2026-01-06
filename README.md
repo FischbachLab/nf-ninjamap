@@ -1,7 +1,7 @@
 ninjaMap - Calculate strain abundance in a defined community
 ====================
 
-The simple scripts shows how to run ninjamap jobs under the Nextflow framework.
+The sample scripts show how to run ninjamap jobs under the Nextflow framework.
 
 ## [ninjaMap workflow](workflow.md) 
 
