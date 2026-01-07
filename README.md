@@ -1,6 +1,6 @@
-<h1 align="center">ninjaMap - Calculate strain abundance in a defined community</h1>
+<h1 align="center">ninjaMap - a pipeline for accurately profiling the strain abundance in a defined microbial community</h1>
 
-<h2 align="center">NinjaMap pipeline 2.0 - a complete restructure of the ninjaMap workflow</h2>
+<h2 align="center">ninjaMap pipeline 2.0 - a complete restructure of the original ninjaMap workflow</h2>
 
 ## [ninjaMap workflow](workflow.md) 
 
