@@ -1,4 +1,4 @@
-ninjaMap - Calculate strain abundance in a defined community
+ninjaMap - a pipeline for computing strain abundance in a defined community
 ====================
 
 The sample scripts show how to run ninjamap jobs under the Nextflow framework.
