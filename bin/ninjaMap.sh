@@ -19,9 +19,9 @@ NINJA_OUTPUT="ninjaMap"
 mkdir -p ${STATS_DIR} ${NINJA_OUTPUT} ${LOG_DIR}
 
 # Exclude Reads Overlapping BED Regions
-
-if [ -z "${mask_bed} " ]; then
-  echo "Enable genome masking option"
+# -n → true if string is not empty
+if [ -n "${mask_bed}" ]; then
+  echo "Enable the genome masking option"
   bed_option="-bed ${mask_bed}"
 else
   bed_option=""
@@ -29,6 +29,7 @@ fi
 
   # check if adding -coverage option
 if [ ${coverage} -eq 1 ]; then
+  echo "Enable the full coverage output"
   cov_option="-coverage"
 else
   cov_option=""
