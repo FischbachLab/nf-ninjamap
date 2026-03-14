@@ -17,7 +17,7 @@ def helpMessage() {
     Run NinjaMap pipeline against a specific database
 
     Required Arguments:
-      --seedfile      file      a file contains sample name, reads1 and reads2
+      --seedfile      file      a csv file containing sample name, read1 and read2
       --db            db_name   NinjaMap database name
       --db_prefix     db_prefix NinjaMap database prefix
       --db_path       db_path   NinjaMap database path
@@ -89,8 +89,8 @@ fna_ch = Channel
 binmap_ch = Channel
       .fromPath("${params.db_path}/${params.db}/db/*.ninjaIndex.binmap.csv")
       .ifEmpty { exit 1, "Cannot find the ninjaMap DB binmap file: ${params.db}" }
-  
 
+ch_mask = params.mask ? Channel.fromPath(params.mask) : Channel.empty()
 workflow {
 
   printParams()
@@ -104,7 +104,9 @@ workflow {
   //bowtie2_alignment.out.bam_ch.view { sample, bam, bai ->
   //  "Sample: $sample | bam: $bam  | bai: $bai"
  // }
-  ninjaMap_abundance(bowtie2_alignment.out.bam_ch, binmap_ch.collect())
+
+
+  ninjaMap_abundance(bowtie2_alignment.out.bam_ch, binmap_ch.collect(), ch_mask.collect())
   ninjaMap_coverage_general(bowtie2_alignment.out.bam_ch, fna_ch.collect())
   ninjaMap_merge_abundance_table(ninjaMap_abundance.out.abundance.join(ninjaMap_coverage_general.out.coverage, by: 0))
 

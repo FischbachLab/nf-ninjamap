@@ -16,7 +16,8 @@ process ninjaMap_abundance {
 
     input:
     tuple val(sample), path(bam), path(bai)
-    path (binmap)
+    path (binmap) // Required input, use 'path'
+    path ch_mask   
 
     output:
     tuple val(sample), path("ninjaMap/${sample}.ninjaMap.abundance.csv"), optional: true, emit: abundance
@@ -26,6 +27,8 @@ process ninjaMap_abundance {
     path "ninjaMap/*.csv", optional: true
 
     script:
+    def mask_option = ch_mask ? "${ch_mask}" : ""
+
     """
     export sampleRate="${params.sampleRate}"
     export coreNum="${params.coreNum}"
@@ -38,7 +41,7 @@ process ninjaMap_abundance {
     export debug="${params.debug}"
     export ref_db="${params.ref_db_path}"
     export singular_vote="${params.min_singular_vote}"
-    export mask_bed="${params.mask}"
+    export mask_bed="${mask_option}"
     export OUTPUT_PREFIX="${sample}"
     bash ninjaMap.sh $bam $bai
     """

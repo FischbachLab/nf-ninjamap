@@ -112,7 +112,7 @@ aws batch submit-job \
 "--output_path", "s3://genomics-workflow-core/Results/Ninjamap/HCom2", \
 "--sampleRate", "0.5" "
 ```
-## Example 4: aws batch job parameters can also be configured with the -params-file option using the development version. A copy of the params will be automatically saved to a json file (parameters.json) in the output bucket.
+## Example 4: aws batch job parameters can also be configured with the -params-file option using ***the development version***. A copy of the params will be automatically saved to a json file (parameters.json) in the output bucket.
 ```{bash}
 aws batch submit-job \
     --job-name nf-ninjamap-MITI \

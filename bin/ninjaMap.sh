@@ -21,15 +21,18 @@ mkdir -p ${STATS_DIR} ${NINJA_OUTPUT} ${LOG_DIR}
 # Exclude Reads Overlapping BED Regions
 # -n → true if string is not empty
 if [ -n "${mask_bed}" ]; then
-  echo "Enable the genome masking option"
+  echo "Enabling the genome masking option ${mask_bed}"
   bed_option="-bed ${mask_bed}"
+  wc -l ${mask_bed}
+  head ${mask_bed}
+  echo "${bed_option}"
 else
   bed_option=""
 fi
 
   # check if adding -coverage option
 if [ ${coverage} -eq 1 ]; then
-  echo "Enable the full coverage output"
+  echo "Enabling the full coverage output"
   cov_option="-coverage"
 else
   cov_option=""
@@ -52,9 +55,9 @@ if [ $all_mapped_reads -gt 1 ]; then
     -bin ${referenceNameFile} \
     -outdir ${NINJA_OUTPUT} \
     ${cov_option} \
-    ${bed_option} \
     -msv ${singular_vote} \
-    -prefix ${OUTPUT_PREFIX} 
+    -prefix ${OUTPUT_PREFIX} \
+    ${bed_option}
 else
     mkdir ninjaMap
     touch "ninjaMap/${OUTPUT_PREFIX}.ninjaMap.abundance.csv"
