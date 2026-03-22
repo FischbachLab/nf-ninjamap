@@ -17,7 +17,7 @@ process ninjaMap_abundance {
     input:
     tuple val(sample), path(bam), path(bai)
     path (binmap) // Required input, use 'path'
-    path ch_mask   
+    path ch_mask
 
     output:
     tuple val(sample), path("ninjaMap/${sample}.ninjaMap.abundance.csv"), optional: true, emit: abundance

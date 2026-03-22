@@ -106,7 +106,7 @@ workflow {
  // }
 
 
-  ninjaMap_abundance(bowtie2_alignment.out.bam_ch, binmap_ch.collect(), ch_mask.collect())
+  ninjaMap_abundance(bowtie2_alignment.out.bam_ch, binmap_ch.collect(), ch_mask.collect().ifEmpty([]))
   ninjaMap_coverage_general(bowtie2_alignment.out.bam_ch, fna_ch.collect())
   ninjaMap_merge_abundance_table(ninjaMap_abundance.out.abundance.join(ninjaMap_coverage_general.out.coverage, by: 0))
 
