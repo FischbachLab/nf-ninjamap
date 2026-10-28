@@ -16,8 +16,8 @@ flowchart TD
         DB --> | Yes | Mate{Mate pair aligns to the same genome?}
         Mate --> | Yes |One{Mate pair aligns to only 1 genome?}
         One --> | Yes | S[Singular reads]
-        One --> | No | E[Escrow reads]
-        Mate --> | No | Same{Any singular reads map to the same gnome?}
+        One --> | No | E[Escrow reads]e
+        Mate --> | No | Same{Any singular reads map to the same genome?}
         Same --> | Yes | E[Escrow reads]
         Same --> | No | U([Unused reads])
     end
