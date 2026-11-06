@@ -1,4 +1,8 @@
 .git
 .nextflow*
 work/
+results/
+test-results/
+__pycache__/
+*.pyc
 .DS_Store

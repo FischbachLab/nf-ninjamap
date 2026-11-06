@@ -4,8 +4,8 @@
 process ninjaMap_abundance {
     tag "$sample"
     container  params.container
-    cpus  32        //48 { 32 * task.attempt }
-    memory 480.GB  // 250.GB     // 380 { 250.GB * task.attempt }
+    cpus  { 8 * task.attempt }        //48 { 32 * task.attempt }
+    memory  { 32.GB * task.attempt }  // 250.GB     // 380 { 250.GB * task.attempt }
 
     errorStrategy 'retry'  //{ task.exitStatus in 137..140 ? 'retry' : 'terminate' }
     maxRetries 2
