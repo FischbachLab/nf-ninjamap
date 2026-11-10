@@ -43,11 +43,12 @@ process bowtie2_alignment {
 
     tag "$sample"
     errorStrategy 'retry' 
-    maxRetries 1
+    maxRetries 2
 
     container params.container
-    cpus 32
-    memory 64.GB 
+
+    cpus  { 16 * task.attempt }
+    memory  { 32.GB * task.attempt }
     
     publishDir "${params.output_path}/${params.db}/${params.project}/${sample}/", mode:'copy'
 
