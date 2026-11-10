@@ -75,6 +75,7 @@ seedfile_ch  = Channel
     .fromPath(params.seedfile)
     .ifEmpty { exit 1, "Cannot find any seed file matching: ${params.seedfile}." }
     .splitCsv(header: ['sampleName', 'R1', 'R2'], sep: ',', skip: 1)
+    .filter { row -> row.sampleName && !row.sampleName.trim().startsWith('#') }
     .map{ row -> tuple(row.sampleName, row.R1, row.R2)}
    // .filter { sampleName, R1, R2 -> !sampleName.toLowerCase().contains("negctrl") }
 
